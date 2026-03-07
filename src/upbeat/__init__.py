@@ -1,3 +1,4 @@
+from upbeat._client import AsyncUpbeat, Upbeat
 from upbeat._auth import Credentials
 from upbeat.types.common import APIResponse
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout, UpbeatConfig
@@ -44,6 +45,9 @@ from upbeat._errors import (
 )
 
 __all__ = [
+    # Client
+    "AsyncUpbeat",
+    "Upbeat",
     # Auth
     "Credentials",
     # Types
