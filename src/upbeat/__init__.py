@@ -1,3 +1,4 @@
+from upbeat._auth import Credentials
 from upbeat._constants import (
     API_BASE_URL,
     MarketState,
@@ -31,6 +32,8 @@ from upbeat._errors import (
 )
 
 __all__ = [
+    # Auth
+    "Credentials",
     # Constants
     "API_BASE_URL",
     "MarketState",
