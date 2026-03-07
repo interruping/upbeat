@@ -1,57 +1,55 @@
 # upbeat
 
-[Upbit](https://upbit.com) 암호화폐 거래소를 위한 모던 Python 클라이언트 라이브러리.
+Modern Python client for the [Upbit](https://upbit.com) cryptocurrency exchange API.
 
-> Looking for English documentation? See [README.en.md](README.en.md).
+## Features
 
-## 주요 기능
+- **Sync + Async** support (`Upbeat` / `AsyncUpbeat`)
+- Full REST API coverage (Quotation + Exchange)
+- WebSocket real-time data streaming
+- Type-safe with Pydantic v2 models
+- Automatic retry with exponential backoff
+- Smart rate limiting (`Remaining-Req` header tracking)
+- JWT authentication (HS512)
+- Context manager support for resource cleanup
+- Customizable HTTP client, logging, and timeouts
 
-- **Sync + Async** 동시 지원 (`Upbeat` / `AsyncUpbeat`)
-- REST API 전체 커버리지 (시세 + 거래)
-- WebSocket 실시간 데이터 스트리밍
-- Pydantic v2 기반 타입 안전한 모델
-- 지수 백오프 자동 재시도
-- `Remaining-Req` 헤더 기반 스마트 Rate Limit 관리
-- JWT 인증 (HS512)
-- 컨텍스트 매니저를 통한 리소스 정리
-- HTTP 클라이언트, 로깅, 타임아웃 커스터마이징
-
-## 설치
+## Installation
 
 ```bash
 pip install upbeat
 ```
 
-pandas 지원 포함:
+With pandas support:
 
 ```bash
 pip install upbeat[pandas]
 ```
 
-## 빠른 시작
+## Quick Start
 
-### 공개 API (인증 불필요)
+### Public API (no authentication)
 
 ```python
 import upbeat
 
-# 모듈 레벨 편의 함수
+# Module-level convenience functions
 ticker = upbeat.get_ticker("KRW-BTC")
 candles = upbeat.get_candles("KRW-BTC", interval="1m", count=200)
 orderbook = upbeat.get_orderbook("KRW-BTC")
 markets = upbeat.get_markets()
 ```
 
-### 클라이언트 인스턴스
+### Client Instance
 
 ```python
 from upbeat import Upbeat
 
 with Upbeat(access_key="...", secret_key="...") as client:
-    # 시세 조회 (공개)
+    # Quotation (public)
     ticker = client.quotation.get_ticker("KRW-BTC")
 
-    # 거래 (인증 필요)
+    # Exchange (authenticated)
     balance = client.accounts.get_balance()
     order = client.orders.create(
         market="KRW-BTC",
@@ -62,7 +60,7 @@ with Upbeat(access_key="...", secret_key="...") as client:
     )
 ```
 
-### 비동기 클라이언트
+### Async Client
 
 ```python
 from upbeat import AsyncUpbeat
@@ -82,7 +80,7 @@ async with AsyncUpbeat(access_key="...", secret_key="...") as client:
         print(msg.trade_price)
 ```
 
-## 설정
+## Configuration
 
 ```python
 from upbeat import Upbeat, Timeout
@@ -92,14 +90,14 @@ client = Upbeat(
     secret_key="...",
     timeout=Timeout(connect=10.0, read=30.0),
     max_retries=3,
-    logger=my_custom_logger,  # Logger Protocol 구현체
+    logger=my_custom_logger,  # Logger Protocol implementation
 )
 
-# 퍼-리퀘스트 오버라이드
+# Per-request override
 slow_client = client.with_options(timeout=Timeout(connect=10.0, read=120.0))
 ```
 
-### 커스텀 HTTP 클라이언트
+### Custom HTTP Client
 
 ```python
 import httpx
@@ -112,7 +110,7 @@ client = Upbeat(
 )
 ```
 
-## 에러 처리
+## Error Handling
 
 ```python
 from upbeat import Upbeat, RateLimitError, InsufficientFundsError, NotFoundError
@@ -128,14 +126,14 @@ try:
         price="50000000",
     )
 except InsufficientFundsError as e:
-    print(f"잔고 부족: {e.error_message}")
+    print(f"Insufficient funds: {e.error_message}")
 except RateLimitError as e:
-    print(f"요청 초과. 잔여 횟수: {e.remaining_request}")
+    print(f"Rate limited. Remaining: {e.remaining_request}")
 except NotFoundError as e:
-    print(f"리소스 없음: {e.error_message}")
+    print(f"Not found: {e.error_message}")
 ```
 
-### 예외 계층
+### Exception Hierarchy
 
 ```
 UpbeatError
@@ -157,42 +155,42 @@ UpbeatError
     WebSocketClosedError
 ```
 
-## API 레퍼런스
+## API Reference
 
-사용 가능한 리소스 그룹:
+Available resource groups:
 
-| 리소스 | 설명 | 인증 |
-|--------|------|------|
-| `client.quotation` | 시세 데이터 (현재가, 캔들, 호가, 체결) | 불필요 |
-| `client.markets` | 페어(거래쌍) 정보 | 불필요 |
-| `client.accounts` | 계정 잔고 | 필요 |
-| `client.orders` | 주문 관리 | 필요 |
-| `client.deposits` | 입금 관련 | 필요 |
-| `client.withdrawals` | 출금 관련 | 필요 |
-| `client.ws` | WebSocket 실시간 스트리밍 | 채널별 상이 |
+| Resource | Description | Auth |
+|----------|-------------|------|
+| `client.quotation` | Market data (ticker, candles, orderbook, trades) | No |
+| `client.markets` | Trading pair information | No |
+| `client.accounts` | Account balance | Yes |
+| `client.orders` | Order management | Yes |
+| `client.deposits` | Deposit operations | Yes |
+| `client.withdrawals` | Withdrawal operations | Yes |
+| `client.ws` | WebSocket real-time streaming | Varies |
 
-엔드포인트 상세 문서는 OpenAPI 스펙을 참고하세요:
+For detailed endpoint documentation, see the OpenAPI specs:
 
-- [시세 API (Quotation)](specs/quotation.yaml) -- 12개 엔드포인트 (공개, 인증 불필요)
-- [거래 API (Exchange)](specs/exchange.yaml) -- 31개 엔드포인트 (JWT 인증 필요)
-- [WebSocket 채널](specs/websocket.yaml) -- 6개 채널 (ticker, trade, orderbook, candle, myOrder, myAsset)
+- [Quotation API](specs/quotation.yaml) -- 12 endpoints (public, no auth)
+- [Exchange API](specs/exchange.yaml) -- 31 endpoints (JWT auth required)
+- [WebSocket Channels](specs/websocket.yaml) -- 6 channels (ticker, trade, orderbook, candle, myOrder, myAsset)
 
-## 개발
+## Development
 
 ```bash
-# 의존성 설치
+# Install dependencies
 uv sync --group dev
 
-# 테스트 실행
+# Run tests
 uv run pytest
 
-# 타입 체크
+# Type checking
 uv run mypy src/upbeat/
 
-# 린트 & 포맷
+# Lint & format
 uv run ruff check . && uv run ruff format .
 ```
 
-## 라이선스
+## License
 
 MIT
