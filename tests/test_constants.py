@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 
 from upbeat._constants import (
+    MarketState,
     OrderSide,
     OrderState,
     OrderType,
@@ -87,6 +88,12 @@ class TestStrEnumConstants:
     def test_time_in_force_values(self):
         assert TimeInForce.IOC == "ioc"
         assert TimeInForce.FOK == "fok"
+        assert TimeInForce.POST_ONLY == "post_only"
+
+    def test_market_state_values(self):
+        assert MarketState.PREVIEW == "preview"
+        assert MarketState.ACTIVE == "active"
+        assert MarketState.DELISTED == "delisted"
 
     def test_sort_order_values(self):
         assert SortOrder.ASC == "asc"

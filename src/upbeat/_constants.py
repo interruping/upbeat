@@ -57,10 +57,13 @@ class OrderState(StrEnum):
 class TimeInForce(StrEnum):
     IOC = "ioc"
     FOK = "fok"
+    POST_ONLY = "post_only"
 
 
 class MarketState(StrEnum):
+    PREVIEW = "preview"
     ACTIVE = "active"
+    DELISTED = "delisted"
 
 
 class SortOrder(StrEnum):
