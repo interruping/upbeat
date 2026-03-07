@@ -24,6 +24,14 @@ dev = [
     "vcrpy>=8.1.1",
 ]
 
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
