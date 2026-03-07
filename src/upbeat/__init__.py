@@ -1,5 +1,14 @@
 from upbeat._client import AsyncUpbeat, Upbeat
 from upbeat._auth import Credentials
+from upbeat._convenience import (
+    get_candles,
+    get_markets,
+    get_orderbook,
+    get_orderbooks,
+    get_ticker,
+    get_tickers,
+    get_trades,
+)
 from upbeat.types.common import APIResponse
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout, UpbeatConfig
 from upbeat._constants import (
@@ -76,6 +85,14 @@ __all__ = [
     "ResponseInfo",
     "RetryInfo",
     "WebSocketEventInfo",
+    # Convenience functions
+    "get_candles",
+    "get_markets",
+    "get_orderbook",
+    "get_orderbooks",
+    "get_ticker",
+    "get_tickers",
+    "get_trades",
     # Errors
     "APIConnectionError",
     "APIError",
