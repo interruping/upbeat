@@ -34,6 +34,8 @@ tags:
     description: 입금 조회/요청
   - name: withdrawals
     description: 출금 조회/요청
+  - name: travel_rule
+    description: 트래블룰 검증
   - name: service
     description: 서비스 상태 및 API Key 관리
 
@@ -1219,6 +1221,116 @@ paths:
                 $ref: "#/components/schemas/WithdrawalChance"
         "400":
           $ref: "#/components/responses/BadRequest"
+
+  # ── Travel Rule ──
+
+  /v1/travel_rule/vasps:
+    get:
+      operationId: listTravelRuleVasps
+      summary: 계정주 확인 서비스 지원 거래소 목록 조회
+      description: 계정주 확인 서비스를 지원하는 거래소 목록을 조회합니다.
+      tags: [travel_rule]
+      x-rate-limit:
+        group: default
+        max_per_sec: 30
+        unit: account
+      responses:
+        "200":
+          description: 트래블룰 지원 거래소 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TravelRuleVasp"
+
+  /v1/travel_rule/deposit/uuid:
+    post:
+      operationId: verifyTravelRuleByUuid
+      summary: 입금 UUID로 계정주 검증 요청
+      description: |
+        입금의 UUID로 트래블룰 검증(입금 계정주 확인)을 요청합니다.
+
+        계정주 검증이 완료된 이후 입금 반영이 진행됩니다.
+        검증이 완료 시 즉시 입금 반영이 진행되나, 블록체인 네트워크 지연 등으로
+        검증 이후에도 입금 자체가 아직 처리 중인 경우 입금이 완료된 이후 입금 반영이 진행됩니다.
+      tags: [travel_rule]
+      x-rate-limit:
+        group: default
+        max_per_sec: 30
+        unit: account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deposit_uuid, vasp_uuid]
+              properties:
+                deposit_uuid:
+                  type: string
+                  description: 입금의 유일식별자(UUID)
+                vasp_uuid:
+                  type: string
+                  description: 자산을 출금한 상대 거래소의 유일식별자(UUID)
+      responses:
+        "201":
+          description: 검증 결과
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRuleVerification"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /v1/travel_rule/deposit/txid:
+    post:
+      operationId: verifyTravelRuleByTxid
+      summary: 입금 TxID로 계정주 검증 요청
+      description: |
+        입금의 TxID로 트래블룰 검증(입금 계정주 확인)을 요청합니다.
+
+        계정주 검증이 완료된 이후 입금 반영이 진행됩니다.
+        검증이 완료 시 즉시 입금 반영이 진행되나, 블록체인 네트워크 지연 등으로
+        검증 이후에도 입금 자체가 아직 처리 중인 경우 입금이 완료된 이후 입금 반영이 진행됩니다.
+      tags: [travel_rule]
+      x-rate-limit:
+        group: default
+        max_per_sec: 30
+        unit: account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vasp_uuid, txid, currency, net_type]
+              properties:
+                vasp_uuid:
+                  type: string
+                  description: 자산을 출금한 상대 거래소의 유일식별자(UUID)
+                txid:
+                  type: string
+                  description: 검증할 입금의 트랜잭션 ID
+                currency:
+                  type: string
+                  description: 조회하고자 하는 통화 코드
+                net_type:
+                  type: string
+                  description: 디지털 자산 입출금에 사용되는 블록체인 네트워크 식별자
+      responses:
+        "201":
+          description: 검증 결과
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelRuleVerification"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # ── Service ──
 
@@ -2802,6 +2914,57 @@ components:
             remaining_daily_krw:
               type: string
               description: "통합 1일 잔여 출금 한도 (KRW 기준) (deprecated)"
+
+    # ── Travel Rule ──
+
+    TravelRuleVasp:
+      type: object
+      required:
+        - vasp_name
+        - vasp_uuid
+        - depositable
+        - withdrawable
+      properties:
+        vasp_name:
+          type: string
+          description: "거래소 이름. VASP(가상자산사업자)의 이름"
+          example: "업비트"
+        vasp_uuid:
+          type: string
+          description: 거래소의 유일식별자(UUID)
+        depositable:
+          type: boolean
+          description: 해당 VASP로부터 업비트로의 입금 반영 가능 여부
+        withdrawable:
+          type: boolean
+          description: 해당 VASP로의 출금 가능 여부
+
+    TravelRuleVerification:
+      type: object
+      required:
+        - deposit_uuid
+        - verification_result
+        - deposit_state
+      properties:
+        deposit_uuid:
+          type: string
+          description: 입금의 유일식별자(UUID)
+        verification_result:
+          type: string
+          description: 검증 결과
+          example: "verified"
+        deposit_state:
+          type: string
+          enum: [PROCESSING, ACCEPTED, CANCELLED, REJECTED, TRAVEL_RULE_SUSPECTED, REFUNDING, REFUNDED]
+          description: |
+            입금 처리 상태.
+            - `PROCESSING`: 입금 진행 중
+            - `ACCEPTED`: 완료
+            - `CANCELLED`: 취소됨
+            - `REJECTED`: 거절됨
+            - `TRAVEL_RULE_SUSPECTED`: 트래블룰 추가 인증 대기중
+            - `REFUNDING`: 반환 절차 중
+            - `REFUNDED`: 반환됨
 
     # ── Service ──
 
