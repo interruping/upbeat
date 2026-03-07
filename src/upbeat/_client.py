@@ -11,19 +11,13 @@ from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout
 from upbeat._constants import API_BASE_URL
 from upbeat._http import AsyncTransport, SyncTransport
 from upbeat._logger import Logger
+from upbeat.api.accounts import AccountsAPI, AsyncAccountsAPI
 from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
+from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
 
 
 # ── Sync API resource stubs ─────────────────────────────────────────────
-
-
-class AccountsAPI(_SyncAPIResource):
-    pass
-
-
-class OrdersAPI(_SyncAPIResource):
-    pass
 
 
 class DepositsAPI(_SyncAPIResource):
@@ -35,14 +29,6 @@ class WithdrawalsAPI(_SyncAPIResource):
 
 
 # ── Async API resource stubs ────────────────────────────────────────────
-
-
-class AsyncAccountsAPI(_AsyncAPIResource):
-    pass
-
-
-class AsyncOrdersAPI(_AsyncAPIResource):
-    pass
 
 
 class AsyncDepositsAPI(_AsyncAPIResource):
