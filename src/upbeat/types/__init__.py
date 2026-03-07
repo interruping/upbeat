@@ -1,5 +1,11 @@
 from upbeat.types.account import Account
 from upbeat.types.common import APIResponse
+from upbeat.types.deposit import (
+    Deposit,
+    DepositAddress,
+    DepositAddressCreated,
+    DepositChanceCoin,
+)
 from upbeat.types.market import MarketCaution, MarketEvent, TradingPair
 from upbeat.types.order import (
     CancelAndNewOrderResponse,
@@ -29,11 +35,25 @@ from upbeat.types.quotation import (
     Ticker,
     Trade,
 )
+from upbeat.types.withdrawal import (
+    Withdrawal,
+    WithdrawalAddress,
+    WithdrawalChance,
+    WithdrawalChanceAccount,
+    WithdrawalChanceCurrency,
+    WithdrawalChanceMemberLevel,
+    WithdrawalChanceWithdrawLimit,
+    WithdrawalKrw,
+)
 
 __all__ = [
     "APIResponse",
     "Account",
     "CancelAndNewOrderResponse",
+    "Deposit",
+    "DepositAddress",
+    "DepositAddressCreated",
+    "DepositChanceCoin",
     "CancelResult",
     "CancelResultGroup",
     "CancelResultOrder",
@@ -60,4 +80,12 @@ __all__ = [
     "Ticker",
     "Trade",
     "TradingPair",
+    "Withdrawal",
+    "WithdrawalAddress",
+    "WithdrawalChance",
+    "WithdrawalChanceAccount",
+    "WithdrawalChanceCurrency",
+    "WithdrawalChanceMemberLevel",
+    "WithdrawalChanceWithdrawLimit",
+    "WithdrawalKrw",
 ]

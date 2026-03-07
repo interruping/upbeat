@@ -6,7 +6,6 @@ from typing import Any
 import httpx
 
 from upbeat._auth import Credentials
-from upbeat._base import _AsyncAPIResource, _SyncAPIResource
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout
 from upbeat._constants import API_BASE_URL
 from upbeat._http import AsyncTransport, SyncTransport
@@ -14,29 +13,9 @@ from upbeat._logger import Logger
 from upbeat.api.accounts import AccountsAPI, AsyncAccountsAPI
 from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
 from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
+from upbeat.api.deposits import AsyncDepositsAPI, DepositsAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
-
-
-# ── Sync API resource stubs ─────────────────────────────────────────────
-
-
-class DepositsAPI(_SyncAPIResource):
-    pass
-
-
-class WithdrawalsAPI(_SyncAPIResource):
-    pass
-
-
-# ── Async API resource stubs ────────────────────────────────────────────
-
-
-class AsyncDepositsAPI(_AsyncAPIResource):
-    pass
-
-
-class AsyncWithdrawalsAPI(_AsyncAPIResource):
-    pass
+from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
 
 
 # ── Upbeat (sync client) ────────────────────────────────────────────────
