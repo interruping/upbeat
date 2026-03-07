@@ -1,0 +1,1121 @@
+openapi: "3.1.0"
+info:
+  title: Upbit WebSocket API
+  description: |
+    업비트 WebSocket API 명세.
+    시세 데이터(Quotation)는 공개 엔드포인트, 자산/주문(Exchange) 데이터는 JWT 인증이 필요한 비공개 엔드포인트를 사용합니다.
+
+    ## TLS
+    - TLS 1.2 이상 필요 (1.3 권장)
+
+    ## 인증
+    - Exchange 데이터(myOrder, myAsset) 수신을 위해 Private 엔드포인트로 연결 시
+      Authorization 헤더에 JWT 토큰을 포함해야 합니다.
+    - 형식: `Authorization: Bearer <JWT>`
+
+    ## 연결 관리
+    - 120초 동안 데이터 송수신이 없으면 Idle Timeout으로 연결이 종료됩니다.
+    - 클라이언트는 주기적으로 PING Frame을 전송하여 연결을 유지할 수 있습니다.
+    - PING Frame 구현이 어려운 경우 "PING" 메세지를 송신하여 연결을 유지할 수 있습니다.
+    - 연결이 정상 유지되는 경우, 서버는 10초 간격으로 UP 상태 메시지를 전송합니다.
+
+    ## 압축
+    - WebSocket 클라이언트에서 압축 옵션을 지원하는 경우 활성화하여 사용할 수 있습니다.
+    - 압축 데이터는 클라이언트에 의해 자동 해제되므로 별도 구현이 필요하지 않습니다.
+
+    ## 데이터 유형
+    - **스냅샷**: 요청 시점의 정보를 1회 수신
+    - **실시간 스트림**: 연결 유지 동안 지속적으로 정보 수신
+
+    ## 에러 코드
+    | error.name | 발생 이유 |
+    | --- | --- |
+    | INVALID_AUTH | 인증 정보 누락 또는 인증 토큰 검증 실패 |
+    | WRONG_FORMAT | 요청 형식 위반 |
+    | NO_TICKET | 티켓 필드 누락 |
+    | NO_TYPE | 타입 필드 누락 |
+    | NO_CODES | 코드 필드 누락 |
+    | INVALID_PARAM | 필수 요청 파라미터 누락 또는 지원하지 않는 값 요청 |
+  version: "1.6.1"
+  contact:
+    name: Upbit Open API
+    url: https://docs.upbit.com
+
+servers:
+  - url: wss://api.upbit.com/websocket/v1
+    description: Public (시세 데이터)
+  - url: wss://api.upbit.com/websocket/v1/private
+    description: Private (자산/주문, JWT 인증 필요)
+
+# ─────────────────────────── x-ws-channels ───────────────────────────
+
+x-ws-channels:
+  ticker:
+    summary: 현재가 (Ticker)
+    description: 현재가 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
+    server: public
+    auth: false
+    subscribe:
+      $ref: "#/components/schemas/TickerSubscription"
+    message:
+      $ref: "#/components/schemas/TickerMessage"
+
+  trade:
+    summary: 체결 (Trade)
+    description: 체결 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
+    server: public
+    auth: false
+    subscribe:
+      $ref: "#/components/schemas/TradeSubscription"
+    message:
+      $ref: "#/components/schemas/TradeMessage"
+
+  orderbook:
+    summary: 호가 (Orderbook)
+    description: |
+      호가 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
+      호가 모아보기(level)는 원화마켓(KRW)에서만 지원합니다.
+      호가 조회 단위(개수)는 codes 필드의 페어 코드 뒤에 `.{unit}` 형식으로 지정합니다 (예: KRW-BTC.15).
+      지원하는 호가 조회 단위는 1, 5, 15, 30이며, 기본값은 30입니다.
+    server: public
+    auth: false
+    subscribe:
+      $ref: "#/components/schemas/OrderbookSubscription"
+    message:
+      $ref: "#/components/schemas/OrderbookMessage"
+
+  candle:
+    summary: 캔들 (Candle)
+    description: |
+      캔들(초봉, 분봉) 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
+      실시간 스트림 전송 주기는 1초이며, 체결이 발생하여 캔들 데이터가 변경될 때에만 전송됩니다.
+      같은 candle_date_time 데이터가 여러 번 전송될 수 있으며, 가장 마지막 수신 데이터가 최신입니다.
+    server: public
+    auth: false
+    subscribe:
+      $ref: "#/components/schemas/CandleSubscription"
+    message:
+      $ref: "#/components/schemas/CandleMessage"
+
+  myOrder:
+    summary: 내 주문 및 체결 (MyOrder)
+    description: |
+      내 주문 및 체결 데이터를 실시간으로 수신합니다. 실시간 스트림만 지원합니다.
+      실제 주문 또는 체결이 발생할 때만 데이터가 전송됩니다.
+      JWT 인증이 필요합니다.
+    server: private
+    auth: true
+    subscribe:
+      $ref: "#/components/schemas/MyOrderSubscription"
+    message:
+      $ref: "#/components/schemas/MyOrderMessage"
+
+  myAsset:
+    summary: 내 자산 (MyAsset)
+    description: |
+      내 자산 데이터를 실시간으로 수신합니다. 실시간 스트림만 지원합니다.
+      실제 자산 변동이 발생할 때만 데이터가 전송됩니다.
+      codes 파라미터를 지원하지 않으며, 포함 시 WRONG_FORMAT 에러가 발생합니다.
+      JWT 인증이 필요합니다.
+      최초 구독 시 수분간 데이터 수신이 정상적으로 이루어지지 않을 수 있으며,
+      재연결 후 데이터 수신을 확인한 뒤 사용하시기 바랍니다.
+    server: private
+    auth: true
+    subscribe:
+      $ref: "#/components/schemas/MyAssetSubscription"
+    message:
+      $ref: "#/components/schemas/MyAssetMessage"
+
+# ─────────────────────────── paths ───────────────────────────
+
+paths:
+  /:
+    post:
+      operationId: subscribe
+      summary: WebSocket 데이터 구독 요청
+      description: |
+        WebSocket 연결 후 데이터 전송을 요청하는 메세지를 JSON Array 형식으로 전송합니다.
+
+        배열 구조:
+        1. **Ticket Object** — 배열의 첫번째 요소. 고유 티켓 식별자를 포함합니다.
+        2. **Data Type Object(s)** — 배열의 두번째 요소부터 조회하고자 하는 데이터 요청 Object를 입력합니다.
+           2개 이상의 Object를 입력하여 동시에 여러 데이터를 요청할 수 있습니다.
+        3. **Format Object** (선택) — 배열의 마지막 요소. 응답 포맷을 지정합니다.
+           DEFAULT(기본), SIMPLE(축약 키), SIMPLE_LIST(축약 키 + 배열) 형식을 지원합니다.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionMessage"
+            examples:
+              tickerStream:
+                summary: KRW-BTC, KRW-ETH 현재가 실시간 스트림 구독
+                value:
+                  - ticket: "0e66c0ac-7e13-43ef-91fb-2a87c2956c49"
+                  - type: "ticker"
+                    codes: ["KRW-BTC", "KRW-ETH"]
+                  - format: "DEFAULT"
+              tradeSimple:
+                summary: 체결 정보를 SIMPLE 포맷으로 수신
+                value:
+                  - ticket: "UNIQUE_TICKET"
+                  - type: "trade"
+                    codes: ["KRW-BTC", "KRW-BCH"]
+                    is_only_realtime: true
+                  - format: "SIMPLE"
+              multiType:
+                summary: 여러 데이터 타입 동시 구독
+                value:
+                  - ticket: "UNIQUE_TICKET"
+                  - type: "trade"
+                    codes: ["KRW-BTC"]
+                  - type: "orderbook"
+                    codes: ["KRW-ETH"]
+                  - type: "ticker"
+                    codes: ["KRW-EOS"]
+      responses:
+        "200":
+          description: 구독 성공. 요청한 데이터 스트림이 시작됩니다.
+        "400":
+          description: 요청 형식 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebSocketError"
+
+# ─────────────────────────── components ───────────────────────────
+
+components:
+  schemas:
+
+    # ── Common ──
+
+    TicketObject:
+      type: object
+      required: [ticket]
+      properties:
+        ticket:
+          type: string
+          description: "고유 티켓 식별자. 요청을 구분하기 위한 고유 문자열"
+          example: "0e66c0ac-7e13-43ef-91fb-2a87c2956c49"
+
+    FormatObject:
+      type: object
+      required: [format]
+      properties:
+        format:
+          type: string
+          enum: [DEFAULT, SIMPLE, SIMPLE_LIST, JSON_LIST]
+          description: |
+            응답 데이터 포맷.
+            - DEFAULT: 기본 포맷 (JSON Object)
+            - SIMPLE: 축약 키 포맷
+            - SIMPLE_LIST: 축약 키 + 배열 포맷
+            - JSON_LIST: 배열 포맷
+          example: "DEFAULT"
+
+    SubscriptionMessage:
+      type: array
+      description: |
+        WebSocket 구독 요청 메세지. JSON Array 형식으로,
+        첫번째 요소는 TicketObject, 이후 DataType Object(s), 마지막은 FormatObject(선택)를 포함합니다.
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/TicketObject"
+          - $ref: "#/components/schemas/TickerSubscription"
+          - $ref: "#/components/schemas/TradeSubscription"
+          - $ref: "#/components/schemas/OrderbookSubscription"
+          - $ref: "#/components/schemas/CandleSubscription"
+          - $ref: "#/components/schemas/MyOrderSubscription"
+          - $ref: "#/components/schemas/MyAssetSubscription"
+          - $ref: "#/components/schemas/FormatObject"
+
+    WebSocketError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [name, message]
+          properties:
+            name:
+              type: string
+              enum:
+                - INVALID_AUTH
+                - WRONG_FORMAT
+                - NO_TICKET
+                - NO_TYPE
+                - NO_CODES
+                - INVALID_PARAM
+              description: "에러 코드"
+            message:
+              type: string
+              description: "에러 메세지"
+
+    # ── Subscriptions ──
+
+    TickerSubscription:
+      type: object
+      required: [type, codes]
+      properties:
+        type:
+          type: string
+          const: "ticker"
+          description: "데이터 타입"
+        codes:
+          type: array
+          items:
+            type: string
+          description: "수신하고자 하는 페어 목록. 반드시 대문자로 요청해야 합니다."
+          example: ["KRW-BTC", "KRW-ETH"]
+        is_only_snapshot:
+          type: boolean
+          description: "스냅샷 시세만 제공"
+          default: false
+        is_only_realtime:
+          type: boolean
+          description: "실시간 시세만 제공"
+          default: false
+
+    TradeSubscription:
+      type: object
+      required: [type, codes]
+      properties:
+        type:
+          type: string
+          const: "trade"
+          description: "데이터 타입"
+        codes:
+          type: array
+          items:
+            type: string
+          description: "수신하고자 하는 페어 목록. 반드시 대문자로 요청해야 합니다."
+          example: ["KRW-BTC", "KRW-ETH"]
+        is_only_snapshot:
+          type: boolean
+          description: "스냅샷 시세만 제공"
+          default: false
+        is_only_realtime:
+          type: boolean
+          description: "실시간 시세만 제공"
+          default: false
+
+    OrderbookSubscription:
+      type: object
+      required: [type, codes]
+      properties:
+        type:
+          type: string
+          const: "orderbook"
+          description: "데이터 타입"
+        codes:
+          type: array
+          items:
+            type: string
+          description: |
+            수신하고자 하는 페어 목록. 반드시 대문자로 요청해야 합니다.
+            호가 조회 단위(개수)를 지정하려면 페어 코드 뒤에 `.{unit}`을 명시합니다.
+            지원하는 호가 조회 단위: 1, 5, 15, 30 (기본값: 30)
+          example: ["KRW-BTC", "KRW-ETH.5"]
+        level:
+          type: number
+          format: double
+          description: |
+            호가 모아보기 단위. 원화마켓(KRW)에서만 지원합니다.
+            별도로 지정하지 않는 경우 기본 단위인 0으로 지정됩니다.
+        is_only_snapshot:
+          type: boolean
+          description: "스냅샷 시세만 제공"
+          default: false
+        is_only_realtime:
+          type: boolean
+          description: "실시간 시세만 제공"
+          default: false
+
+    CandleSubscription:
+      type: object
+      required: [type, codes]
+      properties:
+        type:
+          type: string
+          enum:
+            - "candle.1s"
+            - "candle.1m"
+            - "candle.3m"
+            - "candle.5m"
+            - "candle.10m"
+            - "candle.15m"
+            - "candle.30m"
+            - "candle.60m"
+            - "candle.240m"
+          description: |
+            캔들 형식.
+            candle.1s (초봉), candle.1m (1분봉), candle.3m (3분봉), candle.5m (5분봉),
+            candle.10m (10분봉), candle.15m (15분봉), candle.30m (30분봉),
+            candle.60m (60분봉), candle.240m (240분봉)
+        codes:
+          type: array
+          items:
+            type: string
+          description: "수신하고자 하는 페어 목록. 반드시 대문자로 요청해야 합니다."
+          example: ["KRW-BTC", "KRW-ETH"]
+        is_only_snapshot:
+          type: boolean
+          description: "스냅샷 시세만 제공"
+          default: false
+        is_only_realtime:
+          type: boolean
+          description: "실시간 시세만 제공"
+          default: false
+
+    MyOrderSubscription:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          const: "myOrder"
+          description: "데이터 타입"
+        codes:
+          type: array
+          items:
+            type: string
+          description: |
+            수신하고자 하는 페어 목록. 반드시 대문자로 요청해야 합니다.
+            생략하거나 빈 배열로 요청할 경우 모든 마켓에 대한 정보를 수신합니다.
+          example: ["KRW-BTC"]
+
+    MyAssetSubscription:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          const: "myAsset"
+          description: |
+            데이터 타입.
+            codes 파라미터를 지원하지 않습니다. 포함 시 WRONG_FORMAT 에러가 발생합니다.
+
+    # ── Messages ──
+
+    TickerMessage:
+      type: object
+      required:
+        - type
+        - code
+        - opening_price
+        - high_price
+        - low_price
+        - trade_price
+        - prev_closing_price
+        - change
+        - change_price
+        - signed_change_price
+        - change_rate
+        - signed_change_rate
+        - trade_volume
+        - acc_trade_volume
+        - acc_trade_volume_24h
+        - acc_trade_price
+        - acc_trade_price_24h
+        - trade_date
+        - trade_time
+        - trade_timestamp
+        - ask_bid
+        - acc_ask_volume
+        - acc_bid_volume
+        - highest_52_week_price
+        - highest_52_week_date
+        - lowest_52_week_price
+        - lowest_52_week_date
+        - market_state
+        - is_trading_suspended
+        - delisting_date
+        - market_warning
+        - timestamp
+        - stream_type
+      properties:
+        type:
+          type: string
+          const: "ticker"
+          description: "데이터 항목"
+          x-simple-key: ty
+        code:
+          type: string
+          description: "페어 코드"
+          example: "KRW-BTC"
+          x-simple-key: cd
+        opening_price:
+          type: number
+          format: double
+          description: "시가"
+          x-simple-key: op
+        high_price:
+          type: number
+          format: double
+          description: "고가"
+          x-simple-key: hp
+        low_price:
+          type: number
+          format: double
+          description: "저가"
+          x-simple-key: lp
+        trade_price:
+          type: number
+          format: double
+          description: "현재가"
+          x-simple-key: tp
+        prev_closing_price:
+          type: number
+          format: double
+          description: "전일 종가"
+          x-simple-key: pcp
+        change:
+          type: string
+          enum: [RISE, EVEN, FALL]
+          description: "전일 종가 대비 가격 변동 방향. RISE: 상승, EVEN: 보합, FALL: 하락"
+          x-simple-key: c
+        change_price:
+          type: number
+          format: double
+          description: "전일 대비 가격 변동의 절대값"
+          x-simple-key: cp
+        signed_change_price:
+          type: number
+          format: double
+          description: "전일 대비 가격 변동 값"
+          x-simple-key: scp
+        change_rate:
+          type: number
+          format: double
+          description: "전일 대비 등락율의 절대값"
+          x-simple-key: cr
+        signed_change_rate:
+          type: number
+          format: double
+          description: "전일 대비 등락율"
+          x-simple-key: scr
+        trade_volume:
+          type: number
+          format: double
+          description: "가장 최근 거래량"
+          x-simple-key: tv
+        acc_trade_volume:
+          type: number
+          format: double
+          description: "누적 거래량(UTC 0시 기준)"
+          x-simple-key: atv
+        acc_trade_volume_24h:
+          type: number
+          format: double
+          description: "24시간 누적 거래량"
+          x-simple-key: atv24h
+        acc_trade_price:
+          type: number
+          format: double
+          description: "누적 거래대금(UTC 0시 기준)"
+          x-simple-key: atp
+        acc_trade_price_24h:
+          type: number
+          format: double
+          description: "24시간 누적 거래대금"
+          x-simple-key: atp24h
+        trade_date:
+          type: string
+          description: "최근 거래 일자(UTC) [형식] yyyyMMdd"
+          example: "20230221"
+          x-simple-key: tdt
+        trade_time:
+          type: string
+          description: "최근 거래 시각(UTC) [형식] HHmmss"
+          example: "074102"
+          x-simple-key: ttm
+        trade_timestamp:
+          type: integer
+          format: int64
+          description: "체결 타임스탬프(ms)"
+          x-simple-key: ttms
+        ask_bid:
+          type: string
+          enum: [ASK, BID]
+          description: "매수/매도 구분. ASK: 매도, BID: 매수"
+          x-simple-key: ab
+        acc_ask_volume:
+          type: number
+          format: double
+          description: "누적 매도량"
+          x-simple-key: aav
+        acc_bid_volume:
+          type: number
+          format: double
+          description: "누적 매수량"
+          x-simple-key: abv
+        highest_52_week_price:
+          type: number
+          format: double
+          description: "52주 최고가"
+          x-simple-key: h52wp
+        highest_52_week_date:
+          type: string
+          description: "52주 최고가 달성일 [형식] yyyy-MM-dd"
+          example: "2022-03-28"
+          x-simple-key: h52wdt
+        lowest_52_week_price:
+          type: number
+          format: double
+          description: "52주 최저가"
+          x-simple-key: l52wp
+        lowest_52_week_date:
+          type: string
+          description: "52주 최저가 달성일 [형식] yyyy-MM-dd"
+          example: "2022-12-30"
+          x-simple-key: l52wdt
+        market_state:
+          type: string
+          enum: [PREVIEW, ACTIVE, DELISTED]
+          description: "거래상태. PREVIEW: 입금지원, ACTIVE: 거래지원가능, DELISTED: 거래지원종료"
+          x-simple-key: ms
+        is_trading_suspended:
+          type: boolean
+          description: "거래 정지 여부. Deprecated 필드로 참조 대상에서 제외하는 것을 권장합니다."
+          deprecated: true
+          x-simple-key: its
+        delisting_date:
+          type: string
+          format: date
+          nullable: true
+          description: "거래지원 종료일"
+          x-simple-key: dd
+        market_warning:
+          type: string
+          enum: [NONE, CAUTION]
+          description: "유의 종목 여부. Deprecated 필드로 참조 대상에서 제외하는 것을 권장합니다. NONE: 해당없음, CAUTION: 투자유의"
+          deprecated: true
+          x-simple-key: mw
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프 (ms)"
+          x-simple-key: tms
+        stream_type:
+          type: string
+          enum: [SNAPSHOT, REALTIME]
+          description: "스트림 타입. SNAPSHOT: 스냅샷, REALTIME: 실시간"
+          x-simple-key: st
+
+    TradeMessage:
+      type: object
+      required:
+        - type
+        - code
+        - trade_price
+        - trade_volume
+        - ask_bid
+        - prev_closing_price
+        - change
+        - change_price
+        - trade_date
+        - trade_time
+        - trade_timestamp
+        - timestamp
+        - sequential_id
+        - best_ask_price
+        - best_ask_size
+        - best_bid_price
+        - best_bid_size
+        - stream_type
+      properties:
+        type:
+          type: string
+          const: "trade"
+          description: "데이터 항목"
+          x-simple-key: ty
+        code:
+          type: string
+          description: "페어 코드"
+          example: "KRW-BTC"
+          x-simple-key: cd
+        trade_price:
+          type: number
+          format: double
+          description: "체결 가격"
+          x-simple-key: tp
+        trade_volume:
+          type: number
+          format: double
+          description: "체결량"
+          x-simple-key: tv
+        ask_bid:
+          type: string
+          enum: [ASK, BID]
+          description: "매수/매도 구분. ASK: 매도, BID: 매수"
+          x-simple-key: ab
+        prev_closing_price:
+          type: number
+          format: double
+          description: "전일 종가"
+          x-simple-key: pcp
+        change:
+          type: string
+          enum: [RISE, EVEN, FALL]
+          description: "전일 종가 대비 가격 변동 방향. RISE: 상승, EVEN: 보합, FALL: 하락"
+          x-simple-key: c
+        change_price:
+          type: number
+          format: double
+          description: "전일 대비 가격 변동의 절대값"
+          x-simple-key: cp
+        trade_date:
+          type: string
+          description: "체결 일자(UTC 기준) [형식] yyyy-MM-dd"
+          example: "2024-10-31"
+          x-simple-key: td
+        trade_time:
+          type: string
+          description: "체결 시각(UTC 기준) [형식] HH:mm:ss"
+          example: "01:07:42"
+          x-simple-key: ttm
+        trade_timestamp:
+          type: integer
+          format: int64
+          description: "체결 타임스탬프(ms)"
+          x-simple-key: ttms
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프(ms)"
+          x-simple-key: tms
+        sequential_id:
+          type: integer
+          format: int64
+          description: "체결 번호(Unique)"
+          x-simple-key: sid
+        best_ask_price:
+          type: number
+          format: double
+          description: "최우선 매도 호가"
+          x-simple-key: bap
+        best_ask_size:
+          type: number
+          format: double
+          description: "최우선 매도 잔량"
+          x-simple-key: bas
+        best_bid_price:
+          type: number
+          format: double
+          description: "최우선 매수 호가"
+          x-simple-key: bbp
+        best_bid_size:
+          type: number
+          format: double
+          description: "최우선 매수 잔량"
+          x-simple-key: bbs
+        stream_type:
+          type: string
+          enum: [SNAPSHOT, REALTIME]
+          description: "스트림 타입. SNAPSHOT: 스냅샷, REALTIME: 실시간"
+          x-simple-key: st
+
+    OrderbookMessage:
+      type: object
+      required:
+        - type
+        - code
+        - total_ask_size
+        - total_bid_size
+        - orderbook_units
+        - timestamp
+        - level
+        - stream_type
+      properties:
+        type:
+          type: string
+          const: "orderbook"
+          description: "타입"
+          x-simple-key: ty
+        code:
+          type: string
+          description: "페어 코드"
+          example: "KRW-BTC"
+          x-simple-key: cd
+        total_ask_size:
+          type: number
+          format: double
+          description: "호가 매도 총 잔량"
+          x-simple-key: tas
+        total_bid_size:
+          type: number
+          format: double
+          description: "호가 매수 총 잔량"
+          x-simple-key: tbs
+        orderbook_units:
+          type: array
+          description: "호가"
+          items:
+            $ref: "#/components/schemas/OrderbookUnit"
+          x-simple-key: obu
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프 (ms)"
+          x-simple-key: tms
+        level:
+          type: number
+          format: double
+          description: "호가 모아보기 단위 (default: 0, 기본 호가단위). 호가 모아보기 기능은 원화마켓(KRW)에서만 지원하므로 BTC, USDT 마켓의 경우 0만 존재합니다."
+          x-simple-key: lv
+        stream_type:
+          type: string
+          enum: [SNAPSHOT, REALTIME]
+          description: "스트림 타입. SNAPSHOT: 스냅샷, REALTIME: 실시간"
+          x-simple-key: st
+
+    OrderbookUnit:
+      type: object
+      required: [ask_price, bid_price, ask_size, bid_size]
+      properties:
+        ask_price:
+          type: number
+          format: double
+          description: "매도 호가"
+          x-simple-key: ap
+        bid_price:
+          type: number
+          format: double
+          description: "매수 호가"
+          x-simple-key: bp
+        ask_size:
+          type: number
+          format: double
+          description: "매도 잔량"
+          x-simple-key: as
+        bid_size:
+          type: number
+          format: double
+          description: "매수 잔량"
+          x-simple-key: bs
+
+    CandleMessage:
+      type: object
+      required:
+        - type
+        - code
+        - candle_date_time_utc
+        - candle_date_time_kst
+        - opening_price
+        - high_price
+        - low_price
+        - trade_price
+        - candle_acc_trade_volume
+        - candle_acc_trade_price
+        - timestamp
+        - stream_type
+      properties:
+        type:
+          type: string
+          enum:
+            - "candle.1s"
+            - "candle.1m"
+            - "candle.3m"
+            - "candle.5m"
+            - "candle.10m"
+            - "candle.15m"
+            - "candle.30m"
+            - "candle.60m"
+            - "candle.240m"
+          description: |
+            타입.
+            candle.1s (초봉), candle.1m (1분봉), candle.3m (3분봉), candle.5m (5분봉),
+            candle.10m (10분봉), candle.15m (15분봉), candle.30m (30분봉),
+            candle.60m (60분봉), candle.240m (240분봉)
+          x-simple-key: ty
+        code:
+          type: string
+          description: "마켓 코드 (ex. KRW-BTC)"
+          example: "KRW-BTC"
+          x-simple-key: cd
+        candle_date_time_utc:
+          type: string
+          description: "캔들 기준 시각(UTC 기준) [형식] yyyy-MM-dd'T'HH:mm:ss"
+          example: "2025-01-02T04:28:05"
+          x-simple-key: cdttmu
+        candle_date_time_kst:
+          type: string
+          description: "캔들 기준 시각(KST 기준) [형식] yyyy-MM-dd'T'HH:mm:ss"
+          example: "2025-01-02T13:28:05"
+          x-simple-key: cdttmk
+        opening_price:
+          type: number
+          format: double
+          description: "시가"
+          x-simple-key: op
+        high_price:
+          type: number
+          format: double
+          description: "고가"
+          x-simple-key: hp
+        low_price:
+          type: number
+          format: double
+          description: "저가"
+          x-simple-key: lp
+        trade_price:
+          type: number
+          format: double
+          description: "종가"
+          x-simple-key: tp
+        candle_acc_trade_volume:
+          type: number
+          format: double
+          description: "누적 거래량"
+          x-simple-key: catv
+        candle_acc_trade_price:
+          type: number
+          format: double
+          description: "누적 거래 금액"
+          x-simple-key: catp
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프 (ms)"
+          x-simple-key: tms
+        stream_type:
+          type: string
+          enum: [SNAPSHOT, REALTIME]
+          description: "스트림 타입. SNAPSHOT: 스냅샷, REALTIME: 실시간"
+          x-simple-key: st
+
+    MyOrderMessage:
+      type: object
+      required:
+        - type
+        - code
+        - uuid
+        - ask_bid
+        - order_type
+        - state
+        - price
+        - avg_price
+        - volume
+        - remaining_volume
+        - executed_volume
+        - trades_count
+        - reserved_fee
+        - remaining_fee
+        - paid_fee
+        - locked
+        - executed_funds
+        - trade_timestamp
+        - order_timestamp
+        - timestamp
+        - stream_type
+      properties:
+        type:
+          type: string
+          const: "myOrder"
+          description: "타입"
+          x-simple-key: ty
+        code:
+          type: string
+          description: "페어 코드(예시:KRW-BTC)"
+          example: "KRW-BTC"
+          x-simple-key: cd
+        uuid:
+          type: string
+          description: "주문의 유일 식별자"
+          x-simple-key: uid
+        ask_bid:
+          type: string
+          enum: [ASK, BID]
+          description: "매수/매도 구분. ASK: 매도, BID: 매수"
+          x-simple-key: ab
+        order_type:
+          type: string
+          enum: [limit, price, market, best]
+          description: "주문 타입. limit: 지정가 주문, price: 시장가 매수 주문, market: 시장가 매도 주문, best: 최유리 지정가 주문"
+          x-simple-key: ot
+        state:
+          type: string
+          enum: [wait, watch, trade, done, cancel, prevented]
+          description: "주문 상태. wait: 체결 대기, watch: 예약 주문 대기, trade: 체결 발생, done: 전체 체결 완료, cancel: 주문 취소, prevented: 체결 방지"
+          x-simple-key: s
+        trade_uuid:
+          type: string
+          nullable: true
+          description: "체결의 유일 식별자"
+          x-simple-key: tuid
+        price:
+          type: number
+          format: double
+          description: "주문 가격 또는 체결 가격(state: trade 일 때)"
+          x-simple-key: p
+        avg_price:
+          type: number
+          format: double
+          description: "평균 체결 가격"
+          x-simple-key: ap
+        volume:
+          type: number
+          format: double
+          description: "주문량 또는 체결량 (state: trade 일 때)"
+          x-simple-key: v
+        remaining_volume:
+          type: number
+          format: double
+          description: "체결 후 주문 잔량"
+          x-simple-key: rv
+        executed_volume:
+          type: number
+          format: double
+          description: "체결된 수량"
+          x-simple-key: ev
+        trades_count:
+          type: integer
+          description: "해당 주문에 걸린 체결 수"
+          x-simple-key: tc
+        reserved_fee:
+          type: number
+          format: double
+          description: "수수료로 예약된 비용"
+          x-simple-key: rsf
+        remaining_fee:
+          type: number
+          format: double
+          description: "남은 수수료"
+          x-simple-key: rmf
+        paid_fee:
+          type: number
+          format: double
+          description: "사용된 수수료"
+          x-simple-key: pf
+        locked:
+          type: number
+          format: double
+          description: "거래에 사용중인 비용"
+          x-simple-key: l
+        executed_funds:
+          type: number
+          format: double
+          description: "체결된 금액"
+          x-simple-key: ef
+        time_in_force:
+          type: string
+          nullable: true
+          enum: [ioc, fok, post_only]
+          description: "IOC, FOK, POST ONLY 설정. ioc, fok, post_only"
+          x-simple-key: tif
+        trade_fee:
+          type: number
+          format: double
+          nullable: true
+          description: "체결 시 발생한 수수료 (state: trade가 아닐 경우 null)"
+          x-simple-key: tf
+        is_maker:
+          type: boolean
+          nullable: true
+          description: "체결이 발생한 주문의 메이커/테이커 여부 (state: trade가 아닐 경우 null). true: 메이커 주문, false: 테이커 주문"
+          x-simple-key: im
+        identifier:
+          type: string
+          nullable: true
+          description: "클라이언트 지정 주문 식별자"
+          x-simple-key: id
+        smp_type:
+          type: string
+          nullable: true
+          enum: [reduce, cancel_maker, cancel_taker]
+          description: "자전거래 체결 방지 타입 (동일 회원의 메이커/테이커 주문 간 체결 방지). reduce: 주문 줄이고 진행, cancel_maker: 메이커 주문 취소, cancel_taker: 테이커 주문 취소"
+          x-simple-key: smpt
+        prevented_volume:
+          type: number
+          format: double
+          nullable: true
+          description: "자전거래 체결 방지로 인해 취소된 주문 수량"
+          x-simple-key: pv
+        prevented_locked:
+          type: number
+          format: double
+          nullable: true
+          description: "(매수 시) 자전거래 체결 방지 설정으로 인해 취소된 금액, (매도 시) 자전거래 체결 방지 설정으로 인해 취소된 수량"
+          x-simple-key: pl
+        trade_timestamp:
+          type: integer
+          format: int64
+          description: "체결 타임스탬프 (ms)"
+          x-simple-key: ttms
+        order_timestamp:
+          type: integer
+          format: int64
+          description: "주문 타임스탬프 (ms)"
+          x-simple-key: otms
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프 (ms)"
+          x-simple-key: tms
+        stream_type:
+          type: string
+          enum: [SNAPSHOT, REALTIME]
+          description: "스트림 타입. REALTIME: 실시간 스트림, SNAPSHOT: 스냅샷"
+          x-simple-key: st
+
+    MyAssetMessage:
+      type: object
+      required:
+        - type
+        - asset_uuid
+        - assets
+        - asset_timestamp
+        - timestamp
+        - stream_type
+      properties:
+        type:
+          type: string
+          const: "myAsset"
+          description: "타입"
+          x-simple-key: ty
+        asset_uuid:
+          type: string
+          description: "자산 고유 식별자"
+          x-simple-key: astuid
+        assets:
+          type: array
+          description: "자산 목록"
+          items:
+            $ref: "#/components/schemas/MyAssetItem"
+          x-simple-key: ast
+        asset_timestamp:
+          type: integer
+          format: int64
+          description: "자산 타임스탬프 (ms)"
+          x-simple-key: asttms
+        timestamp:
+          type: integer
+          format: int64
+          description: "타임스탬프 (ms)"
+          x-simple-key: tms
+        stream_type:
+          type: string
+          enum: [REALTIME]
+          description: "스트림 타입. REALTIME: 실시간"
+          x-simple-key: st
+
+    MyAssetItem:
+      type: object
+      required: [currency, balance, locked]
+      properties:
+        currency:
+          type: string
+          description: "화폐 코드"
+          example: "KRW"
+          x-simple-key: cu
+        balance:
+          type: number
+          format: double
+          description: "주문가능 수량"
+          x-simple-key: b
+        locked:
+          type: number
+          format: double
+          description: "주문 중 묶여있는 수량"
+          x-simple-key: l
