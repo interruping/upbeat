@@ -172,7 +172,7 @@ Available resource groups:
 For detailed endpoint documentation, see the OpenAPI specs:
 
 - [Quotation API](specs/quotation.yaml) -- 12 endpoints (public, no auth)
-- [Exchange API](specs/exchange.yaml) -- 28 endpoints (JWT auth required)
+- [Exchange API](specs/exchange.yaml) -- 31 endpoints (JWT auth required)
 - [WebSocket Channels](specs/websocket.yaml) -- 6 channels (ticker, trade, orderbook, candle, myOrder, myAsset)
 
 ## Development

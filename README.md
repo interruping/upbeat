@@ -174,7 +174,7 @@ UpbeatError
 엔드포인트 상세 문서는 OpenAPI 스펙을 참고하세요:
 
 - [시세 API (Quotation)](specs/quotation.yaml) -- 12개 엔드포인트 (공개, 인증 불필요)
-- [거래 API (Exchange)](specs/exchange.yaml) -- 28개 엔드포인트 (JWT 인증 필요)
+- [거래 API (Exchange)](specs/exchange.yaml) -- 31개 엔드포인트 (JWT 인증 필요)
 - [WebSocket 채널](specs/websocket.yaml) -- 6개 채널 (ticker, trade, orderbook, candle, myOrder, myAsset)
 
 ## 개발
