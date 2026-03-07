@@ -6,36 +6,16 @@ from typing import Any
 import httpx
 
 from upbeat._auth import Credentials
+from upbeat._base import _AsyncAPIResource, _SyncAPIResource
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout
 from upbeat._constants import API_BASE_URL
 from upbeat._http import AsyncTransport, SyncTransport
 from upbeat._logger import Logger
-
-
-# ── API Resource base classes ────────────────────────────────────────────
-
-
-class _SyncAPIResource:
-    def __init__(
-        self, transport: SyncTransport, credentials: Credentials | None
-    ) -> None:
-        self._transport = transport
-        self._credentials = credentials
-
-
-class _AsyncAPIResource:
-    def __init__(
-        self, transport: AsyncTransport, credentials: Credentials | None
-    ) -> None:
-        self._transport = transport
-        self._credentials = credentials
+from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
+from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
 
 
 # ── Sync API resource stubs ─────────────────────────────────────────────
-
-
-class QuotationAPI(_SyncAPIResource):
-    pass
 
 
 class AccountsAPI(_SyncAPIResource):
@@ -54,15 +34,7 @@ class WithdrawalsAPI(_SyncAPIResource):
     pass
 
 
-class MarketsAPI(_SyncAPIResource):
-    pass
-
-
 # ── Async API resource stubs ────────────────────────────────────────────
-
-
-class AsyncQuotationAPI(_AsyncAPIResource):
-    pass
 
 
 class AsyncAccountsAPI(_AsyncAPIResource):
@@ -78,10 +50,6 @@ class AsyncDepositsAPI(_AsyncAPIResource):
 
 
 class AsyncWithdrawalsAPI(_AsyncAPIResource):
-    pass
-
-
-class AsyncMarketsAPI(_AsyncAPIResource):
     pass
 
 
