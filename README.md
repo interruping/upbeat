@@ -1,4 +1,4 @@
-# upbeat
+# Upbeat
 
 [Upbit](https://upbit.com) 암호화폐 거래소를 위한 **비공식** Python 클라이언트 라이브러리.
 
