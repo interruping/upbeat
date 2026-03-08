@@ -17,6 +17,7 @@ from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
 from upbeat.api.travel_rule import AsyncTravelRuleAPI, TravelRuleAPI
 from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
+from upbeat.strategies import AsyncStrategies, SyncStrategies
 from upbeat.ws._client import AsyncUpbeatWebSocket
 
 # ── Upbeat (sync client) ────────────────────────────────────────────────
@@ -99,6 +100,10 @@ class Upbeat:
     @cached_property
     def markets(self) -> MarketsAPI:
         return MarketsAPI(self._transport, self._credentials)
+
+    @cached_property
+    def strategies(self) -> SyncStrategies:
+        return SyncStrategies(self)
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
@@ -229,6 +234,10 @@ class AsyncUpbeat:
     @cached_property
     def ws(self) -> AsyncUpbeatWebSocket:
         return AsyncUpbeatWebSocket(self._credentials, self._logger)
+
+    @cached_property
+    def strategies(self) -> AsyncStrategies:
+        return AsyncStrategies(self)
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
