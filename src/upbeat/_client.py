@@ -11,13 +11,13 @@ from upbeat._constants import API_BASE_URL
 from upbeat._http import AsyncTransport, SyncTransport
 from upbeat._logger import Logger
 from upbeat.api.accounts import AccountsAPI, AsyncAccountsAPI
+from upbeat.api.deposits import AsyncDepositsAPI, DepositsAPI
 from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
 from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
-from upbeat.api.deposits import AsyncDepositsAPI, DepositsAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
 from upbeat.api.travel_rule import AsyncTravelRuleAPI, TravelRuleAPI
 from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
-
+from upbeat.ws._client import AsyncUpbeatWebSocket
 
 # ── Upbeat (sync client) ────────────────────────────────────────────────
 
@@ -225,6 +225,10 @@ class AsyncUpbeat:
     @cached_property
     def markets(self) -> AsyncMarketsAPI:
         return AsyncMarketsAPI(self._transport, self._credentials)
+
+    @cached_property
+    def ws(self) -> AsyncUpbeatWebSocket:
+        return AsyncUpbeatWebSocket(self._credentials, self._logger)
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
