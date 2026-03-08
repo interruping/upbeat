@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from upbeat._client import Upbeat
 from upbeat.types.market import TradingPair
 from upbeat.types.quotation import (
@@ -11,6 +13,9 @@ from upbeat.types.quotation import (
     Ticker,
     Trade,
 )
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 _MINUTE_UNITS: dict[str, int] = {
     "1m": 1, "3m": 3, "5m": 5, "10m": 10,
@@ -58,6 +63,44 @@ def get_candles(
             )
         if interval == "1y":
             return client.quotation.get_candles_years(
+                market=market, to=to, count=count,
+            )
+        raise ValueError(
+            f"Invalid interval: {interval!r}. "
+            f"Expected one of: 1s, 1m, 3m, 5m, 10m, 15m, 30m, 60m, 240m, 1d, 1w, 1M, 1y"
+        )
+
+
+def get_candles_df(
+    market: str,
+    *,
+    interval: str,
+    to: str | None = None,
+    count: int | None = None,
+) -> pd.DataFrame:
+    with Upbeat() as client:
+        if interval in _MINUTE_UNITS:
+            return client.quotation.get_candles_minutes_df(
+                market=market, unit=_MINUTE_UNITS[interval], to=to, count=count,  # type: ignore[arg-type]
+            )
+        if interval == "1s":
+            return client.quotation.get_candles_seconds_df(
+                market=market, to=to, count=count,
+            )
+        if interval == "1d":
+            return client.quotation.get_candles_days_df(
+                market=market, to=to, count=count,
+            )
+        if interval == "1w":
+            return client.quotation.get_candles_weeks_df(
+                market=market, to=to, count=count,
+            )
+        if interval == "1M":
+            return client.quotation.get_candles_months_df(
+                market=market, to=to, count=count,
+            )
+        if interval == "1y":
+            return client.quotation.get_candles_years_df(
                 market=market, to=to, count=count,
             )
         raise ValueError(

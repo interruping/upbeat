@@ -2,6 +2,7 @@ from upbeat._client import AsyncUpbeat, Upbeat
 from upbeat._auth import Credentials
 from upbeat._convenience import (
     get_candles,
+    get_candles_df,
     get_markets,
     get_orderbook,
     get_orderbooks,
@@ -87,6 +88,7 @@ __all__ = [
     "WebSocketEventInfo",
     # Convenience functions
     "get_candles",
+    "get_candles_df",
     "get_markets",
     "get_orderbook",
     "get_orderbooks",
