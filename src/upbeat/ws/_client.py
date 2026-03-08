@@ -245,9 +245,9 @@ class WebSocketConnection:
     ) -> None:
         sub: dict[str, object] = {"type": "ticker", "codes": codes}
         if is_only_snapshot:
-            sub["isOnlySnapshot"] = True
+            sub["is_only_snapshot"] = True
         if is_only_realtime:
-            sub["isOnlyRealtime"] = True
+            sub["is_only_realtime"] = True
         self._subscriptions.append(sub)
 
     def subscribe_trade(
@@ -259,9 +259,9 @@ class WebSocketConnection:
     ) -> None:
         sub: dict[str, object] = {"type": "trade", "codes": codes}
         if is_only_snapshot:
-            sub["isOnlySnapshot"] = True
+            sub["is_only_snapshot"] = True
         if is_only_realtime:
-            sub["isOnlyRealtime"] = True
+            sub["is_only_realtime"] = True
         self._subscriptions.append(sub)
 
     def subscribe_orderbook(
@@ -276,9 +276,9 @@ class WebSocketConnection:
         if level is not None:
             sub["level"] = level
         if is_only_snapshot:
-            sub["isOnlySnapshot"] = True
+            sub["is_only_snapshot"] = True
         if is_only_realtime:
-            sub["isOnlyRealtime"] = True
+            sub["is_only_realtime"] = True
         self._subscriptions.append(sub)
 
     def subscribe_candle(
@@ -291,9 +291,9 @@ class WebSocketConnection:
     ) -> None:
         sub: dict[str, object] = {"type": type, "codes": codes}
         if is_only_snapshot:
-            sub["isOnlySnapshot"] = True
+            sub["is_only_snapshot"] = True
         if is_only_realtime:
-            sub["isOnlyRealtime"] = True
+            sub["is_only_realtime"] = True
         self._subscriptions.append(sub)
 
     def subscribe_my_orders(self, codes: list[str] | None = None) -> None:

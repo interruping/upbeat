@@ -247,15 +247,15 @@ class TestGeneratePayload:
         result = generate_payload(
             type="ticker", codes=["KRW-BTC"], is_only_snapshot=True
         )
-        assert result[1]["isOnlySnapshot"] is True
-        assert "isOnlyRealtime" not in result[1]
+        assert result[1]["is_only_snapshot"] is True
+        assert "is_only_realtime" not in result[1]
 
     def test_is_only_realtime(self) -> None:
         result = generate_payload(
             type="ticker", codes=["KRW-BTC"], is_only_realtime=True
         )
-        assert result[1]["isOnlyRealtime"] is True
-        assert "isOnlySnapshot" not in result[1]
+        assert result[1]["is_only_realtime"] is True
+        assert "is_only_snapshot" not in result[1]
 
     def test_snapshot_and_realtime_false_excluded(self) -> None:
         result = generate_payload(
@@ -264,8 +264,20 @@ class TestGeneratePayload:
             is_only_snapshot=False,
             is_only_realtime=False,
         )
-        assert "isOnlySnapshot" not in result[1]
-        assert "isOnlyRealtime" not in result[1]
+        assert "is_only_snapshot" not in result[1]
+        assert "is_only_realtime" not in result[1]
+
+    def test_my_order_rejects_snapshot_realtime(self) -> None:
+        with pytest.raises(ValueError, match="does not support"):
+            generate_payload(type="myOrder", is_only_snapshot=True)
+        with pytest.raises(ValueError, match="does not support"):
+            generate_payload(type="myOrder", is_only_realtime=True)
+
+    def test_my_asset_rejects_snapshot_realtime(self) -> None:
+        with pytest.raises(ValueError, match="does not support"):
+            generate_payload(type="myAsset", is_only_snapshot=True)
+        with pytest.raises(ValueError, match="does not support"):
+            generate_payload(type="myAsset", is_only_realtime=True)
 
     def test_orderbook_level(self) -> None:
         result = generate_payload(type="orderbook", codes=["KRW-BTC"], level=10000.0)
@@ -578,7 +590,7 @@ class TestWebSocketConnection:
 
         assert len(conn._subscriptions) == 6
         assert conn._subscriptions[0]["type"] == "ticker"
-        assert conn._subscriptions[1]["isOnlyRealtime"] is True
+        assert conn._subscriptions[1]["is_only_realtime"] is True
         assert conn._subscriptions[2]["level"] == 10000.0
         assert conn._subscriptions[3]["type"] == "candle.5m"
         assert conn._subscriptions[4]["type"] == "myOrder"

@@ -23,6 +23,11 @@ def generate_payload(
     if type == "myAsset" and codes is not None:
         raise ValueError("myAsset channel does not accept codes parameter")
 
+    if type in ("myOrder", "myAsset") and (is_only_snapshot or is_only_realtime):
+        raise ValueError(
+            f"{type} channel does not support is_only_snapshot/is_only_realtime"
+        )
+
     if is_public and not codes:
         raise ValueError(f"{type} channel requires codes parameter")
 
@@ -32,9 +37,9 @@ def generate_payload(
         type_obj["codes"] = codes
 
     if is_only_snapshot:
-        type_obj["isOnlySnapshot"] = True
+        type_obj["is_only_snapshot"] = True
     if is_only_realtime:
-        type_obj["isOnlyRealtime"] = True
+        type_obj["is_only_realtime"] = True
 
     if level is not None and type == "orderbook":
         type_obj["level"] = level
