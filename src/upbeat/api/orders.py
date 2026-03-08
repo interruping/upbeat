@@ -179,9 +179,7 @@ class OrdersAPI(_SyncAPIResource):
         identifiers: list[str] | None = None,
         order_by: str | None = None,
     ) -> list[OrderByIds]:
-        params: dict[str, Any] = _filter_params(
-            market=market, order_by=order_by
-        )
+        params: dict[str, Any] = _filter_params(market=market, order_by=order_by)
         if uuids is not None:
             params["uuids[]"] = uuids
         if identifiers is not None:
@@ -404,9 +402,7 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         identifiers: list[str] | None = None,
         order_by: str | None = None,
     ) -> list[OrderByIds]:
-        params: dict[str, Any] = _filter_params(
-            market=market, order_by=order_by
-        )
+        params: dict[str, Any] = _filter_params(market=market, order_by=order_by)
         if uuids is not None:
             params["uuids[]"] = uuids
         if identifiers is not None:

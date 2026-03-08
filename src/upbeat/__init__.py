@@ -1,3 +1,5 @@
+from importlib.metadata import version as _version
+
 from upbeat._auth import Credentials
 from upbeat._client import AsyncUpbeat, Upbeat
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout, UpbeatConfig
@@ -72,7 +74,11 @@ from upbeat.ws import (
     parse_message,
 )
 
+__version__ = _version("upbeat")
+
 __all__ = [
+    # Version
+    "__version__",
     # Client
     "AsyncUpbeat",
     "Upbeat",

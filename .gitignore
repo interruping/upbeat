@@ -1,0 +1,25 @@
+CLAUDE.local.md
+DEV_PLAN.md
+
+upbit_reference
+.claude/
+.venv/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Testing
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store

@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from upbeat._auth import build_auth_header, build_query_string, Credentials
+from upbeat._auth import Credentials, build_auth_header, build_query_string
 from upbeat._config import DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, Timeout
 from upbeat._constants import API_BASE_URL
 from upbeat._errors import (
@@ -26,21 +26,16 @@ from upbeat._logger import (
 )
 from upbeat.types.common import APIResponse
 
-
 # ── Helper functions ─────────────────────────────────────────────────────
 
 
 def _should_retry(error: Exception) -> bool:
     if isinstance(error, (RateLimitError, InternalServerError)):
         return True
-    if isinstance(error, (APIConnectionError, APITimeoutError)):
-        return True
-    return False
+    return isinstance(error, (APIConnectionError, APITimeoutError))
 
 
-def _calculate_delay(
-    attempt: int, base: float = 0.5, max_delay: float = 8.0
-) -> float:
+def _calculate_delay(attempt: int, base: float = 0.5, max_delay: float = 8.0) -> float:
     delay = min(base * (2**attempt), max_delay)
     jitter = delay * random.uniform(0, 0.25)  # noqa: S311
     return delay + jitter
@@ -135,9 +130,7 @@ class SyncTransport:
                     query_string = build_query_string(params)
                 else:
                     query_string = ""
-                headers["Authorization"] = build_auth_header(
-                    credentials, query_string
-                )
+                headers["Authorization"] = build_auth_header(credentials, query_string)
 
             if json_body is not None:
                 headers["Content-Type"] = "application/json; charset=utf-8"
@@ -207,9 +200,7 @@ class SyncTransport:
                 )
 
             except httpx.TimeoutException as exc:
-                last_error = APITimeoutError(
-                    f"Request timed out: {exc}", cause=exc
-                )
+                last_error = APITimeoutError(f"Request timed out: {exc}", cause=exc)
                 if attempt < self._max_retries:
                     retry_delay = _calculate_delay(attempt)
                     self._logger.on_retry(
@@ -234,9 +225,7 @@ class SyncTransport:
                 httpx.NetworkError,
                 httpx.RemoteProtocolError,
             ) as exc:
-                last_error = APIConnectionError(
-                    f"Connection error: {exc}", cause=exc
-                )
+                last_error = APIConnectionError(f"Connection error: {exc}", cause=exc)
                 if attempt < self._max_retries:
                     retry_delay = _calculate_delay(attempt)
                     self._logger.on_retry(
@@ -322,9 +311,7 @@ class AsyncTransport:
                     query_string = build_query_string(params)
                 else:
                     query_string = ""
-                headers["Authorization"] = build_auth_header(
-                    credentials, query_string
-                )
+                headers["Authorization"] = build_auth_header(credentials, query_string)
 
             if json_body is not None:
                 headers["Content-Type"] = "application/json; charset=utf-8"
@@ -390,9 +377,7 @@ class AsyncTransport:
                 )
 
             except httpx.TimeoutException as exc:
-                last_error = APITimeoutError(
-                    f"Request timed out: {exc}", cause=exc
-                )
+                last_error = APITimeoutError(f"Request timed out: {exc}", cause=exc)
                 if attempt < self._max_retries:
                     retry_delay = _calculate_delay(attempt)
                     self._logger.on_retry(
@@ -417,9 +402,7 @@ class AsyncTransport:
                 httpx.NetworkError,
                 httpx.RemoteProtocolError,
             ) as exc:
-                last_error = APIConnectionError(
-                    f"Connection error: {exc}", cause=exc
-                )
+                last_error = APIConnectionError(f"Connection error: {exc}", cause=exc)
                 if attempt < self._max_retries:
                     retry_delay = _calculate_delay(attempt)
                     self._logger.on_retry(

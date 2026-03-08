@@ -30,6 +30,7 @@ class RemainingRequest:
 
 # ── Base ─────────────────────────────────────────────────────────────────
 
+
 class UpbeatError(Exception):
     message: str
 
@@ -39,6 +40,7 @@ class UpbeatError(Exception):
 
 
 # ── API errors ───────────────────────────────────────────────────────────
+
 
 class APIError(UpbeatError):
     pass
@@ -164,6 +166,7 @@ _STATUS_CODE_MAP: dict[int, type[APIStatusError]] = {
 
 # ── Connection errors ────────────────────────────────────────────────────
 
+
 class APIConnectionError(APIError):
     cause: Exception | None
 
@@ -177,6 +180,7 @@ class APITimeoutError(APIConnectionError):
 
 
 # ── WebSocket errors ─────────────────────────────────────────────────────
+
 
 class WebSocketError(UpbeatError):
     pass

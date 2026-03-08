@@ -19,4 +19,12 @@ class TravelRuleVerification(BaseModel):
 
     deposit_uuid: str
     verification_result: str
-    deposit_state: Literal["PROCESSING", "ACCEPTED", "CANCELLED", "REJECTED", "TRAVEL_RULE_SUSPECTED", "REFUNDING", "REFUNDED"]
+    deposit_state: Literal[
+        "PROCESSING",
+        "ACCEPTED",
+        "CANCELLED",
+        "REJECTED",
+        "TRAVEL_RULE_SUSPECTED",
+        "REFUNDING",
+        "REFUNDED",
+    ]

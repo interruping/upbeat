@@ -18,8 +18,14 @@ if TYPE_CHECKING:
     import pandas as pd
 
 _MINUTE_UNITS: dict[str, int] = {
-    "1m": 1, "3m": 3, "5m": 5, "10m": 10,
-    "15m": 15, "30m": 30, "60m": 60, "240m": 240,
+    "1m": 1,
+    "3m": 3,
+    "5m": 5,
+    "10m": 10,
+    "15m": 15,
+    "30m": 30,
+    "60m": 60,
+    "240m": 240,
 }
 
 
@@ -43,27 +49,40 @@ def get_candles(
     with Upbeat() as client:
         if interval in _MINUTE_UNITS:
             return client.quotation.get_candles_minutes(
-                market=market, unit=_MINUTE_UNITS[interval], to=to, count=count,  # type: ignore[arg-type]
+                market=market,
+                unit=_MINUTE_UNITS[interval],
+                to=to,
+                count=count,  # type: ignore[arg-type]
             )
         if interval == "1s":
             return client.quotation.get_candles_seconds(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1d":
             return client.quotation.get_candles_days(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1w":
             return client.quotation.get_candles_weeks(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1M":
             return client.quotation.get_candles_months(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1y":
             return client.quotation.get_candles_years(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         raise ValueError(
             f"Invalid interval: {interval!r}. "
@@ -81,27 +100,40 @@ def get_candles_df(
     with Upbeat() as client:
         if interval in _MINUTE_UNITS:
             return client.quotation.get_candles_minutes_df(
-                market=market, unit=_MINUTE_UNITS[interval], to=to, count=count,  # type: ignore[arg-type]
+                market=market,
+                unit=_MINUTE_UNITS[interval],
+                to=to,
+                count=count,  # type: ignore[arg-type]
             )
         if interval == "1s":
             return client.quotation.get_candles_seconds_df(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1d":
             return client.quotation.get_candles_days_df(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1w":
             return client.quotation.get_candles_weeks_df(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1M":
             return client.quotation.get_candles_months_df(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         if interval == "1y":
             return client.quotation.get_candles_years_df(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
             )
         raise ValueError(
             f"Invalid interval: {interval!r}. "
@@ -129,7 +161,11 @@ def get_trades(
 ) -> list[Trade]:
     with Upbeat() as client:
         return client.quotation.get_trades(
-            market, to=to, count=count, cursor=cursor, days_ago=days_ago,
+            market,
+            to=to,
+            count=count,
+            cursor=cursor,
+            days_ago=days_ago,
         )
 
 

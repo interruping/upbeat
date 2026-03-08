@@ -274,9 +274,7 @@ class AsyncUpbeat:
         new._credentials = self._credentials
         new._base_url = self._base_url
         new._timeout = self._timeout
-        new._max_retries = (
-            max_retries if max_retries is not None else self._max_retries
-        )
+        new._max_retries = max_retries if max_retries is not None else self._max_retries
         new._auto_throttle = (
             auto_throttle if auto_throttle is not None else self._auto_throttle
         )

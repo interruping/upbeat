@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
 
-
 # ── OrderTrade (체결 내역, OrderDetail 내부) ────────────────────────────
 
 

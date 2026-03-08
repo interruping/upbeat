@@ -68,7 +68,9 @@ class QuotationAPI(_SyncAPIResource):
         converting_price_unit: str | None = None,
     ) -> list[CandleDay]:
         params = _filter_params(
-            market=market, to=to, count=count,
+            market=market,
+            to=to,
+            count=count,
             converting_price_unit=converting_price_unit,
         )
         response = self._transport.request("GET", "/v1/candles/days", params=params)
@@ -140,7 +142,9 @@ class QuotationAPI(_SyncAPIResource):
     ) -> pd.DataFrame:
         return candles_to_dataframe(
             self.get_candles_days(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
                 converting_price_unit=converting_price_unit,
             )
         )
@@ -220,9 +224,7 @@ class AsyncQuotationAPI(_AsyncAPIResource):
 
     async def get_tickers_by_quote(self, quote_currencies: str) -> list[Ticker]:
         params = {"quote_currencies": quote_currencies}
-        response = await self._transport.request(
-            "GET", "/v1/ticker/all", params=params
-        )
+        response = await self._transport.request("GET", "/v1/ticker/all", params=params)
         return [Ticker.model_validate(item) for item in response.data]
 
     async def get_candles_minutes(
@@ -261,7 +263,9 @@ class AsyncQuotationAPI(_AsyncAPIResource):
         converting_price_unit: str | None = None,
     ) -> list[CandleDay]:
         params = _filter_params(
-            market=market, to=to, count=count,
+            market=market,
+            to=to,
+            count=count,
             converting_price_unit=converting_price_unit,
         )
         response = await self._transport.request(
@@ -318,7 +322,10 @@ class AsyncQuotationAPI(_AsyncAPIResource):
     ) -> pd.DataFrame:
         return candles_to_dataframe(
             await self.get_candles_minutes(
-                market=market, unit=unit, to=to, count=count,
+                market=market,
+                unit=unit,
+                to=to,
+                count=count,
             )
         )
 
@@ -343,7 +350,9 @@ class AsyncQuotationAPI(_AsyncAPIResource):
     ) -> pd.DataFrame:
         return candles_to_dataframe(
             await self.get_candles_days(
-                market=market, to=to, count=count,
+                market=market,
+                to=to,
+                count=count,
                 converting_price_unit=converting_price_unit,
             )
         )
@@ -389,9 +398,7 @@ class AsyncQuotationAPI(_AsyncAPIResource):
         count: int | None = None,
     ) -> list[Orderbook]:
         params = _filter_params(markets=markets, level=level, count=count)
-        response = await self._transport.request(
-            "GET", "/v1/orderbook", params=params
-        )
+        response = await self._transport.request("GET", "/v1/orderbook", params=params)
         return [Orderbook.model_validate(item) for item in response.data]
 
     async def get_orderbook_instruments(
