@@ -71,6 +71,10 @@ pandas 지원 포함:
 pip install upbeat[pandas]
 ```
 
+> [!TIP]
+> 시세 조회 등 공개 API는 인증 없이 사용할 수 있지만, 주문·계좌·입출금 등 거래 API를 이용하려면 Upbit에서 발급받은 API 키가 필요합니다.
+> [Upbit Open API 관리 페이지](https://upbit.com/mypage/open_api_management)에서 `access_key`와 `secret_key`를 발급받으세요.
+
 ## 빠른 시작
 
 ### 공개 API (인증 불필요)

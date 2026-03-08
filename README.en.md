@@ -69,6 +69,10 @@ With pandas support:
 pip install upbeat[pandas]
 ```
 
+> [!TIP]
+> Public APIs (market data, tickers, etc.) work without authentication, but trading APIs (orders, accounts, deposits/withdrawals) require API keys from Upbit.
+> Get your `access_key` and `secret_key` from the [Upbit Open API Management page](https://upbit.com/mypage/open_api_management).
+
 ## Quick Start
 
 ### Public API (no authentication)
