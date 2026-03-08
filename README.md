@@ -28,8 +28,7 @@ async with AsyncUpbeat(access_key="...", secret_key="...") as client:
 
         elif change < -0.03:
             # 3% 빠졌다! 패닉셀!
-            accounts = await client.accounts.list()
-            btc = next(a for a in accounts if a.currency == "BTC")
+            btc = await client.shortcuts.get_account("BTC")
             await client.orders.create(
                 market="KRW-BTC", side="ask",
                 ord_type="market", volume=btc.balance,

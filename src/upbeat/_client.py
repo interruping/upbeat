@@ -17,6 +17,7 @@ from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
 from upbeat.api.travel_rule import AsyncTravelRuleAPI, TravelRuleAPI
 from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
+from upbeat.shortcuts import AsyncShortcuts, SyncShortcuts
 from upbeat.strategies import AsyncStrategies, SyncStrategies
 from upbeat.ws._client import AsyncUpbeatWebSocket
 
@@ -104,6 +105,10 @@ class Upbeat:
     @cached_property
     def strategies(self) -> SyncStrategies:
         return SyncStrategies(self)
+
+    @cached_property
+    def shortcuts(self) -> SyncShortcuts:
+        return SyncShortcuts(self)
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
@@ -238,6 +243,10 @@ class AsyncUpbeat:
     @cached_property
     def strategies(self) -> AsyncStrategies:
         return AsyncStrategies(self)
+
+    @cached_property
+    def shortcuts(self) -> AsyncShortcuts:
+        return AsyncShortcuts(self)
 
     # ── Lifecycle ────────────────────────────────────────────────────
 
