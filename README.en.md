@@ -1,6 +1,50 @@
 # upbeat
 
-Modern Python client for the [Upbit](https://upbit.com) cryptocurrency exchange API.
+**Unofficial** modern Python client for the [Upbit](https://upbit.com) cryptocurrency exchange API.
+
+> [!WARNING]
+> This library does not guarantee investment returns. We accept no responsibility for any investment losses caused by software bugs, API changes, network failures, or any other reason. All investment decisions and their consequences are entirely your own responsibility.
+
+---
+
+*Tired of manually buying the top and selling the bottom? Now you can automate your losses with code!*
+
+```python
+from upbeat import AsyncUpbeat
+
+async with AsyncUpbeat(access_key="...", secret_key="...") as client:
+    # Watch the real-time ticker...
+    async for tick in client.ws.ticker(["KRW-BTC"]):
+        change = tick.signed_change_rate  # Change rate from previous day
+
+        if change > 0.05:
+            # Up 5%! It's definitely going higher — chase the pump (aka FOMO)
+            await client.orders.create(
+                market="KRW-BTC", side="bid",
+                ord_type="price", price="100000",
+            )
+
+        elif change < -0.03:
+            # Down 3%! Panic sell!
+            accounts = await client.accounts.list()
+            btc = next(a for a in accounts if a.currency == "BTC")
+            await client.orders.create(
+                market="KRW-BTC", side="ask",
+                ord_type="market", volume=btc.balance,
+            )
+        # Expected return of this strategy: -∞
+```
+
+*(Just kidding. Please don't actually do this.)*
+
+## Why Upbeat?
+
+- **AI-friendly** — Ships with built-in OpenAPI 3.1 + AsyncAPI 3.0 specs, so LLMs and AI agents can instantly understand the API structure and generate code.
+- **Full Upbit API coverage** — 12 quotation endpoints, 31 exchange endpoints, 6 WebSocket channels. Every API Upbit offers, covered.
+- **Type safety** — Every request and response is defined as a Pydantic v2 model, giving you IDE autocompletion and runtime validation. Bad parameters get caught before your code runs.
+
+> [!NOTE]
+> This project was built with agentic coding. It was designed, implemented, and tested in collaboration with an AI coding agent (Claude Code). The [`CLAUDE.md`](CLAUDE.md) and [`AGENTS.md`](AGENTS.md) files in the project root contain project context — code style, architecture, commands — so AI agents can start contributing right away.
 
 ## Features
 
@@ -47,10 +91,10 @@ from upbeat import Upbeat
 
 with Upbeat(access_key="...", secret_key="...") as client:
     # Quotation (public)
-    ticker = client.quotation.get_ticker("KRW-BTC")
+    tickers = client.quotation.get_tickers("KRW-BTC")
 
     # Exchange (authenticated)
-    balance = client.accounts.get_balance()
+    accounts = client.accounts.list()
     order = client.orders.create(
         market="KRW-BTC",
         side="bid",
@@ -66,8 +110,8 @@ with Upbeat(access_key="...", secret_key="...") as client:
 from upbeat import AsyncUpbeat
 
 async with AsyncUpbeat(access_key="...", secret_key="...") as client:
-    ticker = await client.quotation.get_ticker("KRW-BTC")
-    balance = await client.accounts.get_balance()
+    tickers = await client.quotation.get_tickers("KRW-BTC")
+    accounts = await client.accounts.list()
 ```
 
 ### WebSocket
@@ -94,7 +138,7 @@ client = Upbeat(
 )
 
 # Per-request override
-slow_client = client.with_options(timeout=Timeout(connect=10.0, read=120.0))
+cautious_client = client.with_options(max_retries=5)
 ```
 
 ### Custom HTTP Client
@@ -175,22 +219,35 @@ For detailed endpoint documentation, see the OpenAPI specs:
 - [Exchange API](specs/exchange.yaml) -- 31 endpoints (JWT auth required)
 - [WebSocket Channels](specs/websocket.yaml) -- 6 channels (ticker, trade, orderbook, candle, myOrder, myAsset)
 
-## Development
+## Contributing
+
+Contributions are welcome! Please follow the steps below before opening a PR.
 
 ```bash
-# Install dependencies
+# 1. Fork and clone
+git clone https://github.com/<your-username>/upbeat.git
+cd upbeat
+
+# 2. Install dependencies
 uv sync --group dev
 
-# Run tests
-uv run pytest
+# 3. Create a branch
+git checkout -b feat/my-feature
 
-# Type checking
-uv run mypy src/upbeat/
-
-# Lint & format
-uv run ruff check . && uv run ruff format .
+# 4. After making changes, make sure all checks pass
+uv run ruff check src/            # Lint
+uv run ruff format src/           # Format
+uv run mypy src/upbeat/           # Type check
+uv run pytest                     # Tests
 ```
+
+When opening a PR:
+
+- Use branch name prefixes like `feat/`, `fix/`, `chore/`, etc.
+- Write commit messages that briefly explain the "why" behind the change.
+- Include tests for new features.
+- Ensure lint, format, type check, and tests all pass.
 
 ## License
 
-MIT
+[MIT](LICENSE)

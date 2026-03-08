@@ -1,8 +1,52 @@
 # upbeat
 
-[Upbit](https://upbit.com) 암호화폐 거래소를 위한 모던 Python 클라이언트 라이브러리.
+[Upbit](https://upbit.com) 암호화폐 거래소를 위한 **비공식** Python 클라이언트 라이브러리.
 
 > Looking for English documentation? See [README.en.md](README.en.md).
+
+> [!WARNING]
+> 이 라이브러리는 투자 수익을 보장하지 않습니다. 버그, API 변경, 네트워크 장애 등 어떤 원인으로든 발생하는 투자 손실에 대해 일체의 책임을 지지 않습니다. 투자 판단과 결과는 전적으로 사용자 본인에게 있습니다.
+
+---
+
+*손으로 직접 고점에 매수하고 저점에 매도하느라 지치셨나요? 이제 코드로 손실을 자동화하세요!*
+
+```python
+from upbeat import AsyncUpbeat
+
+async with AsyncUpbeat(access_key="...", secret_key="...") as client:
+    # 실시간 시세를 감시하다가...
+    async for tick in client.ws.ticker(["KRW-BTC"]):
+        change = tick.signed_change_rate  # 전일 대비 변동률
+
+        if change > 0.05:
+            # 5% 올랐다! 더 오를 것 같으니 추격 매수 (일명 FOMO)
+            await client.orders.create(
+                market="KRW-BTC", side="bid",
+                ord_type="price", price="100000",
+            )
+
+        elif change < -0.03:
+            # 3% 빠졌다! 패닉셀!
+            accounts = await client.accounts.list()
+            btc = next(a for a in accounts if a.currency == "BTC")
+            await client.orders.create(
+                market="KRW-BTC", side="ask",
+                ord_type="market", volume=btc.balance,
+            )
+        # 이 전략의 기대수익률: -∞
+```
+
+*(농담입니다. 제발 이렇게 쓰지 마세요.)*
+
+## 왜 Upbeat?
+
+- **AI 친화적** — OpenAPI 3.1 + AsyncAPI 3.0 스펙이 내장되어 있어서 LLM이나 AI 에이전트가 API 구조를 바로 파악하고 코드를 생성할 수 있습니다.
+- **Upbit API 전체 커버리지** — 시세 조회 12개, 거래 31개, WebSocket 6개 채널. 업비트가 제공하는 API를 빠짐없이 지원합니다.
+- **타입 안전성** — 모든 요청과 응답이 Pydantic v2 모델로 정의되어 있어서 IDE 자동완성이 잘 됩니다. 잘못된 파라미터는 실행 전에 잡힙니다.
+
+> [!NOTE]
+> 이 프로젝트는 Agentic 코딩으로 개발되었습니다. AI 코딩 에이전트(Claude Code)와 함께 설계, 구현, 테스트를 진행했습니다. 프로젝트 루트의 [`CLAUDE.md`](CLAUDE.md)와 [`AGENTS.md`](AGENTS.md)에 코드 스타일, 아키텍처, 명령어 등 프로젝트 컨텍스트가 정리되어 있어 AI 에이전트가 바로 기여를 시작할 수 있습니다.
 
 ## 주요 기능
 
@@ -49,10 +93,10 @@ from upbeat import Upbeat
 
 with Upbeat(access_key="...", secret_key="...") as client:
     # 시세 조회 (공개)
-    ticker = client.quotation.get_ticker("KRW-BTC")
+    tickers = client.quotation.get_tickers("KRW-BTC")
 
     # 거래 (인증 필요)
-    balance = client.accounts.get_balance()
+    accounts = client.accounts.list()
     order = client.orders.create(
         market="KRW-BTC",
         side="bid",
@@ -68,8 +112,8 @@ with Upbeat(access_key="...", secret_key="...") as client:
 from upbeat import AsyncUpbeat
 
 async with AsyncUpbeat(access_key="...", secret_key="...") as client:
-    ticker = await client.quotation.get_ticker("KRW-BTC")
-    balance = await client.accounts.get_balance()
+    tickers = await client.quotation.get_tickers("KRW-BTC")
+    accounts = await client.accounts.list()
 ```
 
 ### WebSocket
@@ -96,7 +140,7 @@ client = Upbeat(
 )
 
 # 퍼-리퀘스트 오버라이드
-slow_client = client.with_options(timeout=Timeout(connect=10.0, read=120.0))
+cautious_client = client.with_options(max_retries=5)
 ```
 
 ### 커스텀 HTTP 클라이언트
@@ -177,22 +221,35 @@ UpbeatError
 - [거래 API (Exchange)](specs/exchange.yaml) -- 31개 엔드포인트 (JWT 인증 필요)
 - [WebSocket 채널](specs/websocket.yaml) -- 6개 채널 (ticker, trade, orderbook, candle, myOrder, myAsset)
 
-## 개발
+## 기여
+
+기여는 언제나 환영합니다! PR을 올리기 전에 아래 과정을 따라주세요.
 
 ```bash
-# 의존성 설치
+# 1. 포크 후 클론
+git clone https://github.com/<your-username>/upbeat.git
+cd upbeat
+
+# 2. 의존성 설치
 uv sync --group dev
 
-# 테스트 실행
-uv run pytest
+# 3. 브랜치 생성
+git checkout -b feat/my-feature
 
-# 타입 체크
-uv run mypy src/upbeat/
-
-# 린트 & 포맷
-uv run ruff check . && uv run ruff format .
+# 4. 코드 작성 후, PR 전에 아래를 모두 통과시켜 주세요
+uv run ruff check src/            # 린트
+uv run ruff format src/           # 포맷
+uv run mypy src/upbeat/           # 타입 체크
+uv run pytest                     # 테스트
 ```
+
+PR을 올릴 때:
+
+- 브랜치 이름은 `feat/`, `fix/`, `chore/` 등 접두사를 사용해 주세요.
+- 커밋 메시지는 변경의 "왜"를 간결하게 담아주세요.
+- 새로운 기능에는 테스트를 함께 추가해 주세요.
+- 린트, 포맷, 타입 체크, 테스트가 모두 통과하는지 확인해 주세요.
 
 ## 라이선스
 
-MIT
+[MIT](LICENSE)
