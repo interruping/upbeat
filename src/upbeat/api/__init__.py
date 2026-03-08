@@ -3,6 +3,7 @@ from upbeat.api.deposits import AsyncDepositsAPI, DepositsAPI
 from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
 from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
+from upbeat.api.travel_rule import AsyncTravelRuleAPI, TravelRuleAPI
 from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
 
 __all__ = [
@@ -12,10 +13,12 @@ __all__ = [
     "AsyncMarketsAPI",
     "AsyncOrdersAPI",
     "AsyncQuotationAPI",
+    "AsyncTravelRuleAPI",
     "AsyncWithdrawalsAPI",
     "DepositsAPI",
     "MarketsAPI",
     "OrdersAPI",
     "QuotationAPI",
+    "TravelRuleAPI",
     "WithdrawalsAPI",
 ]

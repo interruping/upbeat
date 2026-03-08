@@ -15,6 +15,7 @@ from upbeat.api.markets import AsyncMarketsAPI, MarketsAPI
 from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.api.deposits import AsyncDepositsAPI, DepositsAPI
 from upbeat.api.quotation import AsyncQuotationAPI, QuotationAPI
+from upbeat.api.travel_rule import AsyncTravelRuleAPI, TravelRuleAPI
 from upbeat.api.withdrawals import AsyncWithdrawalsAPI, WithdrawalsAPI
 
 
@@ -90,6 +91,10 @@ class Upbeat:
     @cached_property
     def withdrawals(self) -> WithdrawalsAPI:
         return WithdrawalsAPI(self._transport, self._credentials)
+
+    @cached_property
+    def travel_rule(self) -> TravelRuleAPI:
+        return TravelRuleAPI(self._transport, self._credentials)
 
     @cached_property
     def markets(self) -> MarketsAPI:
@@ -212,6 +217,10 @@ class AsyncUpbeat:
     @cached_property
     def withdrawals(self) -> AsyncWithdrawalsAPI:
         return AsyncWithdrawalsAPI(self._transport, self._credentials)
+
+    @cached_property
+    def travel_rule(self) -> AsyncTravelRuleAPI:
+        return AsyncTravelRuleAPI(self._transport, self._credentials)
 
     @cached_property
     def markets(self) -> AsyncMarketsAPI:

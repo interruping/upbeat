@@ -35,6 +35,7 @@ from upbeat.types.quotation import (
     Ticker,
     Trade,
 )
+from upbeat.types.travel_rule import TravelRuleVasp, TravelRuleVerification
 from upbeat.types.withdrawal import (
     Withdrawal,
     WithdrawalAddress,
@@ -80,6 +81,8 @@ __all__ = [
     "Ticker",
     "Trade",
     "TradingPair",
+    "TravelRuleVasp",
+    "TravelRuleVerification",
     "Withdrawal",
     "WithdrawalAddress",
     "WithdrawalChance",
