@@ -1,6 +1,8 @@
-openapi: "3.1.0"
+asyncapi: 3.0.0
+
 info:
   title: Upbit WebSocket API
+  version: 1.6.1
   description: |
     업비트 WebSocket API 명세.
     시세 데이터(Quotation)는 공개 엔드포인트, 자산/주문(Exchange) 데이터는 JWT 인증이 필요한 비공개 엔드포인트를 사용합니다.
@@ -36,82 +38,112 @@ info:
     | NO_TYPE | 타입 필드 누락 |
     | NO_CODES | 코드 필드 누락 |
     | INVALID_PARAM | 필수 요청 파라미터 누락 또는 지원하지 않는 값 요청 |
-  version: "1.6.1"
   contact:
     name: Upbit Open API
     url: https://docs.upbit.com
 
+# ─────────────────────────── servers ───────────────────────────
+
 servers:
-  - url: wss://api.upbit.com/websocket/v1
+  public:
+    host: api.upbit.com
+    pathname: /websocket/v1
+    protocol: wss
     description: Public (시세 데이터)
-  - url: wss://api.upbit.com/websocket/v1/private
+  private:
+    host: api.upbit.com
+    pathname: /websocket/v1/private
+    protocol: wss
     description: Private (자산/주문, JWT 인증 필요)
+    security:
+      - $ref: "#/components/securitySchemes/bearerAuth"
 
-# ─────────────────────────── x-ws-channels ───────────────────────────
+# ─────────────────────────── channels ───────────────────────────
 
-x-ws-channels:
+channels:
+  subscription:
+    address: /
+    title: 구독 요청
+    description: |
+      WebSocket 연결 후 데이터 전송을 요청하는 메세지를 JSON Array 형식으로 전송합니다.
+
+      배열 구조:
+      1. **Ticket Object** — 배열의 첫번째 요소. 고유 티켓 식별자를 포함합니다.
+      2. **Data Type Object(s)** — 배열의 두번째 요소부터 조회하고자 하는 데이터 요청 Object를 입력합니다.
+         2개 이상의 Object를 입력하여 동시에 여러 데이터를 요청할 수 있습니다.
+      3. **Format Object** (선택) — 배열의 마지막 요소. 응답 포맷을 지정합니다.
+         DEFAULT(기본), SIMPLE(축약 키), SIMPLE_LIST(축약 키 + 배열) 형식을 지원합니다.
+    messages:
+      SubscriptionMessage:
+        $ref: "#/components/messages/SubscriptionMessage"
+      WebSocketError:
+        $ref: "#/components/messages/WebSocketError"
+
   ticker:
-    summary: 현재가 (Ticker)
+    address: /
+    servers:
+      - $ref: "#/servers/public"
+    title: 현재가 (Ticker)
     description: 현재가 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
-    server: public
-    auth: false
-    subscribe:
-      $ref: "#/components/schemas/TickerSubscription"
-    message:
-      $ref: "#/components/schemas/TickerMessage"
+    messages:
+      TickerMessage:
+        $ref: "#/components/messages/TickerMessage"
 
   trade:
-    summary: 체결 (Trade)
+    address: /
+    servers:
+      - $ref: "#/servers/public"
+    title: 체결 (Trade)
     description: 체결 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
-    server: public
-    auth: false
-    subscribe:
-      $ref: "#/components/schemas/TradeSubscription"
-    message:
-      $ref: "#/components/schemas/TradeMessage"
+    messages:
+      TradeMessage:
+        $ref: "#/components/messages/TradeMessage"
 
   orderbook:
-    summary: 호가 (Orderbook)
+    address: /
+    servers:
+      - $ref: "#/servers/public"
+    title: 호가 (Orderbook)
     description: |
       호가 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
       호가 모아보기(level)는 원화마켓(KRW)에서만 지원합니다.
       호가 조회 단위(개수)는 codes 필드의 페어 코드 뒤에 `.{unit}` 형식으로 지정합니다 (예: KRW-BTC.15).
       지원하는 호가 조회 단위는 1, 5, 15, 30이며, 기본값은 30입니다.
-    server: public
-    auth: false
-    subscribe:
-      $ref: "#/components/schemas/OrderbookSubscription"
-    message:
-      $ref: "#/components/schemas/OrderbookMessage"
+    messages:
+      OrderbookMessage:
+        $ref: "#/components/messages/OrderbookMessage"
 
   candle:
-    summary: 캔들 (Candle)
+    address: /
+    servers:
+      - $ref: "#/servers/public"
+    title: 캔들 (Candle)
     description: |
       캔들(초봉, 분봉) 데이터를 실시간으로 수신합니다. 스냅샷 및 실시간 스트림을 지원합니다.
       실시간 스트림 전송 주기는 1초이며, 체결이 발생하여 캔들 데이터가 변경될 때에만 전송됩니다.
       같은 candle_date_time 데이터가 여러 번 전송될 수 있으며, 가장 마지막 수신 데이터가 최신입니다.
-    server: public
-    auth: false
-    subscribe:
-      $ref: "#/components/schemas/CandleSubscription"
-    message:
-      $ref: "#/components/schemas/CandleMessage"
+    messages:
+      CandleMessage:
+        $ref: "#/components/messages/CandleMessage"
 
   myOrder:
-    summary: 내 주문 및 체결 (MyOrder)
+    address: /
+    servers:
+      - $ref: "#/servers/private"
+    title: 내 주문 및 체결 (MyOrder)
     description: |
       내 주문 및 체결 데이터를 실시간으로 수신합니다. 실시간 스트림만 지원합니다.
       실제 주문 또는 체결이 발생할 때만 데이터가 전송됩니다.
       JWT 인증이 필요합니다.
-    server: private
-    auth: true
-    subscribe:
-      $ref: "#/components/schemas/MyOrderSubscription"
-    message:
-      $ref: "#/components/schemas/MyOrderMessage"
+    messages:
+      MyOrderMessage:
+        $ref: "#/components/messages/MyOrderMessage"
 
   myAsset:
-    summary: 내 자산 (MyAsset)
+    address: /
+    servers:
+      - $ref: "#/servers/private"
+    title: 내 자산 (MyAsset)
     description: |
       내 자산 데이터를 실시간으로 수신합니다. 실시간 스트림만 지원합니다.
       실제 자산 변동이 발생할 때만 데이터가 전송됩니다.
@@ -119,73 +151,194 @@ x-ws-channels:
       JWT 인증이 필요합니다.
       최초 구독 시 수분간 데이터 수신이 정상적으로 이루어지지 않을 수 있으며,
       재연결 후 데이터 수신을 확인한 뒤 사용하시기 바랍니다.
-    server: private
-    auth: true
-    subscribe:
-      $ref: "#/components/schemas/MyAssetSubscription"
-    message:
-      $ref: "#/components/schemas/MyAssetMessage"
+    messages:
+      MyAssetMessage:
+        $ref: "#/components/messages/MyAssetMessage"
 
-# ─────────────────────────── paths ───────────────────────────
+# ─────────────────────────── operations ───────────────────────────
 
-paths:
-  /:
-    post:
-      operationId: subscribe
-      summary: WebSocket 데이터 구독 요청
-      description: |
-        WebSocket 연결 후 데이터 전송을 요청하는 메세지를 JSON Array 형식으로 전송합니다.
+operations:
+  sendSubscription:
+    action: send
+    channel:
+      $ref: "#/channels/subscription"
+    title: WebSocket 데이터 구독 요청
+    summary: WebSocket 연결 후 데이터 전송을 요청합니다.
+    description: |
+      WebSocket 연결 후 데이터 전송을 요청하는 메세지를 JSON Array 형식으로 전송합니다.
 
-        배열 구조:
-        1. **Ticket Object** — 배열의 첫번째 요소. 고유 티켓 식별자를 포함합니다.
-        2. **Data Type Object(s)** — 배열의 두번째 요소부터 조회하고자 하는 데이터 요청 Object를 입력합니다.
-           2개 이상의 Object를 입력하여 동시에 여러 데이터를 요청할 수 있습니다.
-        3. **Format Object** (선택) — 배열의 마지막 요소. 응답 포맷을 지정합니다.
-           DEFAULT(기본), SIMPLE(축약 키), SIMPLE_LIST(축약 키 + 배열) 형식을 지원합니다.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SubscriptionMessage"
-            examples:
-              tickerStream:
-                summary: KRW-BTC, KRW-ETH 현재가 실시간 스트림 구독
-                value:
-                  - ticket: "0e66c0ac-7e13-43ef-91fb-2a87c2956c49"
-                  - type: "ticker"
-                    codes: ["KRW-BTC", "KRW-ETH"]
-                  - format: "DEFAULT"
-              tradeSimple:
-                summary: 체결 정보를 SIMPLE 포맷으로 수신
-                value:
-                  - ticket: "UNIQUE_TICKET"
-                  - type: "trade"
-                    codes: ["KRW-BTC", "KRW-BCH"]
-                    is_only_realtime: true
-                  - format: "SIMPLE"
-              multiType:
-                summary: 여러 데이터 타입 동시 구독
-                value:
-                  - ticket: "UNIQUE_TICKET"
-                  - type: "trade"
-                    codes: ["KRW-BTC"]
-                  - type: "orderbook"
-                    codes: ["KRW-ETH"]
-                  - type: "ticker"
-                    codes: ["KRW-EOS"]
-      responses:
-        "200":
-          description: 구독 성공. 요청한 데이터 스트림이 시작됩니다.
-        "400":
-          description: 요청 형식 오류
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebSocketError"
+      배열 구조:
+      1. **Ticket Object** — 배열의 첫번째 요소. 고유 티켓 식별자를 포함합니다.
+      2. **Data Type Object(s)** — 배열의 두번째 요소부터 조회하고자 하는 데이터 요청 Object를 입력합니다.
+      3. **Format Object** (선택) — 배열의 마지막 요소. 응답 포맷을 지정합니다.
+    messages:
+      - $ref: "#/channels/subscription/messages/SubscriptionMessage"
+
+  receiveError:
+    action: receive
+    channel:
+      $ref: "#/channels/subscription"
+    title: 에러 수신
+    summary: 구독 요청 오류 시 에러 메시지를 수신합니다.
+    messages:
+      - $ref: "#/channels/subscription/messages/WebSocketError"
+
+  receiveTicker:
+    action: receive
+    channel:
+      $ref: "#/channels/ticker"
+    title: 현재가 데이터 수신
+    summary: 현재가(Ticker) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/ticker/messages/TickerMessage"
+
+  receiveTrade:
+    action: receive
+    channel:
+      $ref: "#/channels/trade"
+    title: 체결 데이터 수신
+    summary: 체결(Trade) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/trade/messages/TradeMessage"
+
+  receiveOrderbook:
+    action: receive
+    channel:
+      $ref: "#/channels/orderbook"
+    title: 호가 데이터 수신
+    summary: 호가(Orderbook) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/orderbook/messages/OrderbookMessage"
+
+  receiveCandle:
+    action: receive
+    channel:
+      $ref: "#/channels/candle"
+    title: 캔들 데이터 수신
+    summary: 캔들(Candle) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/candle/messages/CandleMessage"
+
+  receiveMyOrder:
+    action: receive
+    channel:
+      $ref: "#/channels/myOrder"
+    title: 내 주문 데이터 수신
+    summary: 내 주문 및 체결(MyOrder) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/myOrder/messages/MyOrderMessage"
+
+  receiveMyAsset:
+    action: receive
+    channel:
+      $ref: "#/channels/myAsset"
+    title: 내 자산 데이터 수신
+    summary: 내 자산(MyAsset) 데이터를 실시간으로 수신합니다.
+    messages:
+      - $ref: "#/channels/myAsset/messages/MyAssetMessage"
 
 # ─────────────────────────── components ───────────────────────────
 
 components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Exchange 데이터(myOrder, myAsset) 수신을 위한 JWT 인증"
+
+  messages:
+    SubscriptionMessage:
+      name: SubscriptionMessage
+      title: 구독 요청 메시지
+      summary: WebSocket 데이터 구독 요청 JSON Array
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/SubscriptionMessage"
+      examples:
+        - name: tickerStream
+          summary: KRW-BTC, KRW-ETH 현재가 실시간 스트림 구독
+          payload:
+            - ticket: "0e66c0ac-7e13-43ef-91fb-2a87c2956c49"
+            - type: "ticker"
+              codes: ["KRW-BTC", "KRW-ETH"]
+            - format: "DEFAULT"
+        - name: tradeSimple
+          summary: 체결 정보를 SIMPLE 포맷으로 수신
+          payload:
+            - ticket: "UNIQUE_TICKET"
+            - type: "trade"
+              codes: ["KRW-BTC", "KRW-BCH"]
+              is_only_realtime: true
+            - format: "SIMPLE"
+        - name: multiType
+          summary: 여러 데이터 타입 동시 구독
+          payload:
+            - ticket: "UNIQUE_TICKET"
+            - type: "trade"
+              codes: ["KRW-BTC"]
+            - type: "orderbook"
+              codes: ["KRW-ETH"]
+            - type: "ticker"
+              codes: ["KRW-EOS"]
+
+    WebSocketError:
+      name: WebSocketError
+      title: WebSocket 에러 메시지
+      summary: 구독 요청 오류 시 반환되는 에러 메시지
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/WebSocketError"
+
+    TickerMessage:
+      name: TickerMessage
+      title: 현재가 메시지
+      summary: 현재가(Ticker) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/TickerMessage"
+
+    TradeMessage:
+      name: TradeMessage
+      title: 체결 메시지
+      summary: 체결(Trade) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/TradeMessage"
+
+    OrderbookMessage:
+      name: OrderbookMessage
+      title: 호가 메시지
+      summary: 호가(Orderbook) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/OrderbookMessage"
+
+    CandleMessage:
+      name: CandleMessage
+      title: 캔들 메시지
+      summary: 캔들(Candle) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/CandleMessage"
+
+    MyOrderMessage:
+      name: MyOrderMessage
+      title: 내 주문 메시지
+      summary: 내 주문 및 체결(MyOrder) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/MyOrderMessage"
+
+    MyAssetMessage:
+      name: MyAssetMessage
+      title: 내 자산 메시지
+      summary: 내 자산(MyAsset) 데이터
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/MyAssetMessage"
+
   schemas:
 
     # ── Common ──
