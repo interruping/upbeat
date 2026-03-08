@@ -10,7 +10,7 @@ class Deposit(BaseModel):
     uuid: str
     currency: str
     net_type: str | None = None
-    txid: str | None = None
+    txid: str
     state: str
     created_at: str
     done_at: str | None = None
@@ -41,7 +41,7 @@ class DepositChanceCoin(BaseModel):
     currency: str
     net_type: str | None = None
     is_deposit_possible: bool
-    deposit_impossible_reason: str | None = None
-    minimum_deposit_amount: str | None = None
-    minimum_deposit_confirmations: int | None = None
-    decimal_precision: int | None = None
+    deposit_impossible_reason: str
+    minimum_deposit_amount: str
+    minimum_deposit_confirmations: int
+    decimal_precision: int

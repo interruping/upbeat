@@ -253,12 +253,12 @@ class TestCreateKrwWithdrawal:
             assert request.method == "POST"
             body = json.loads(request.content)
             assert body["amount"] == "50000"
-            assert body["two_factor_type"] == "kakao_pay"
+            assert body["two_factor_type"] == "kakao"
             return _json_response(WITHDRAWAL_KRW_DATA)
 
         transport = _make_transport(handler)
         api = WithdrawalsAPI(transport, CREDENTIALS)
-        result = api.create_krw(amount="50000", two_factor_type="kakao_pay")
+        result = api.create_krw(amount="50000", two_factor_type="kakao")
         assert isinstance(result, WithdrawalKrw)
         assert result.currency == "KRW"
 

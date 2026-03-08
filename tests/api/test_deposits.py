@@ -72,7 +72,7 @@ DEPOSIT_CHANCE_COIN_DATA: dict[str, Any] = {
     "currency": "BTC",
     "net_type": "BTC",
     "is_deposit_possible": True,
-    "deposit_impossible_reason": None,
+    "deposit_impossible_reason": "",
     "minimum_deposit_amount": "0.0005",
     "minimum_deposit_confirmations": 3,
     "decimal_precision": 8,
@@ -245,12 +245,12 @@ class TestCreateKrwDeposit:
             assert request.method == "POST"
             body = json.loads(request.content)
             assert body["amount"] == "10000"
-            assert body["two_factor_type"] == "kakao_pay"
+            assert body["two_factor_type"] == "kakao"
             return _json_response(DEPOSIT_DATA)
 
         transport = _make_transport(handler)
         api = DepositsAPI(transport, CREDENTIALS)
-        result = api.create_krw(amount="10000", two_factor_type="kakao_pay")
+        result = api.create_krw(amount="10000", two_factor_type="kakao")
         assert isinstance(result, Deposit)
 
 

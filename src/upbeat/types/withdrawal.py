@@ -17,7 +17,7 @@ class Withdrawal(BaseModel):
     amount: str
     fee: str
     transaction_type: str
-    is_cancelable: bool | None = None
+    is_cancelable: bool
 
 
 class WithdrawalKrw(BaseModel):
@@ -33,7 +33,7 @@ class WithdrawalKrw(BaseModel):
     amount: str
     fee: str
     transaction_type: str
-    is_cancelable: bool | None = None
+    is_cancelable: bool
 
 
 class WithdrawalAddress(BaseModel):
@@ -89,11 +89,11 @@ class WithdrawalChanceWithdrawLimit(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     currency: str
-    onetime: str | None = None
-    daily: str | None = None
-    remaining_daily: str | None = None
-    remaining_daily_fiat: str | None = None
-    fiat_currency: str | None = None
+    onetime: str
+    daily: str | None
+    remaining_daily: str
+    remaining_daily_fiat: str
+    fiat_currency: str
     minimum: str | None = None
     fixed: int | None = None
     withdraw_delayed_fiat: str | None = None
