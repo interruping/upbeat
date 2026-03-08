@@ -2,6 +2,8 @@ from decimal import ROUND_DOWN, Decimal
 from enum import StrEnum
 
 API_BASE_URL = "https://api.upbit.com"
+WS_PUBLIC_URL = "wss://api.upbit.com/websocket/v1"
+WS_PRIVATE_URL = "wss://api.upbit.com/websocket/v1/private"
 
 # ── KRW tick size table ──────────────────────────────────────────────────
 
