@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -17,4 +19,4 @@ class TravelRuleVerification(BaseModel):
 
     deposit_uuid: str
     verification_result: str
-    deposit_state: str
+    deposit_state: Literal["PROCESSING", "ACCEPTED", "CANCELLED", "REJECTED", "TRAVEL_RULE_SUSPECTED", "REFUNDING", "REFUNDED"]

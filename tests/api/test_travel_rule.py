@@ -47,7 +47,7 @@ VASP_DATA: dict[str, Any] = {
 VERIFICATION_DATA: dict[str, Any] = {
     "deposit_uuid": "dep-uuid-1",
     "verification_result": "verified",
-    "deposit_state": "accepted",
+    "deposit_state": "ACCEPTED",
 }
 
 
@@ -137,7 +137,7 @@ class TestVerifyByUuid:
         assert isinstance(result, TravelRuleVerification)
         assert result.deposit_uuid == "dep-uuid-1"
         assert result.verification_result == "verified"
-        assert result.deposit_state == "accepted"
+        assert result.deposit_state == "ACCEPTED"
 
 
 # ── TestVerifyByTxid ─────────────────────────────────────────────────────
