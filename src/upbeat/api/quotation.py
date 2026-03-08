@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from upbeat._base import _AsyncAPIResource, _SyncAPIResource
+from upbeat._pandas import candles_to_dataframe
 from upbeat.types.quotation import (
     CandleDay,
     CandleMinute,
@@ -13,6 +14,9 @@ from upbeat.types.quotation import (
     Ticker,
     Trade,
 )
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 def _filter_params(**kwargs: Any) -> dict[str, Any]:
@@ -102,6 +106,77 @@ class QuotationAPI(_SyncAPIResource):
         params = _filter_params(market=market, to=to, count=count)
         response = self._transport.request("GET", "/v1/candles/years", params=params)
         return [CandlePeriod.model_validate(item) for item in response.data]
+
+    def get_candles_minutes_df(
+        self,
+        *,
+        market: str,
+        unit: Literal[1, 3, 5, 10, 15, 30, 60, 240],
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_minutes(market=market, unit=unit, to=to, count=count)
+        )
+
+    def get_candles_seconds_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_seconds(market=market, to=to, count=count)
+        )
+
+    def get_candles_days_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+        converting_price_unit: str | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_days(
+                market=market, to=to, count=count,
+                converting_price_unit=converting_price_unit,
+            )
+        )
+
+    def get_candles_weeks_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_weeks(market=market, to=to, count=count)
+        )
+
+    def get_candles_months_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_months(market=market, to=to, count=count)
+        )
+
+    def get_candles_years_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            self.get_candles_years(market=market, to=to, count=count)
+        )
 
     def get_orderbooks(
         self,
@@ -232,6 +307,79 @@ class AsyncQuotationAPI(_AsyncAPIResource):
             "GET", "/v1/candles/years", params=params
         )
         return [CandlePeriod.model_validate(item) for item in response.data]
+
+    async def get_candles_minutes_df(
+        self,
+        *,
+        market: str,
+        unit: Literal[1, 3, 5, 10, 15, 30, 60, 240],
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_minutes(
+                market=market, unit=unit, to=to, count=count,
+            )
+        )
+
+    async def get_candles_seconds_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_seconds(market=market, to=to, count=count)
+        )
+
+    async def get_candles_days_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+        converting_price_unit: str | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_days(
+                market=market, to=to, count=count,
+                converting_price_unit=converting_price_unit,
+            )
+        )
+
+    async def get_candles_weeks_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_weeks(market=market, to=to, count=count)
+        )
+
+    async def get_candles_months_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_months(market=market, to=to, count=count)
+        )
+
+    async def get_candles_years_df(
+        self,
+        *,
+        market: str,
+        to: str | None = None,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        return candles_to_dataframe(
+            await self.get_candles_years(market=market, to=to, count=count)
+        )
 
     async def get_orderbooks(
         self,
