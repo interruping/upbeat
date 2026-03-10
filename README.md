@@ -217,6 +217,8 @@ UpbeatError
 | `client.deposits` | 입금 관련 | 필요 |
 | `client.withdrawals` | 출금 관련 | 필요 |
 | `client.ws` | WebSocket 실시간 스트리밍 | 채널별 상이 |
+| `client.shortcuts` | 편의 헬퍼 (계좌 조회, 포트폴리오, 시장가 매수 등) | 필요 |
+| `client.strategies` | 매매 전략 (DCA, 리밸런싱, 가격 알림) | 필요 |
 
 엔드포인트 상세 문서는 OpenAPI 스펙을 참고하세요:
 

@@ -215,6 +215,8 @@ Available resource groups:
 | `client.deposits` | Deposit operations | Yes |
 | `client.withdrawals` | Withdrawal operations | Yes |
 | `client.ws` | WebSocket real-time streaming | Varies |
+| `client.shortcuts` | Convenience helpers (account lookup, portfolio, market buy, etc.) | Yes |
+| `client.strategies` | Trading strategies (DCA, rebalancing, price alerts) | Yes |
 
 For detailed endpoint documentation, see the OpenAPI specs:
 
