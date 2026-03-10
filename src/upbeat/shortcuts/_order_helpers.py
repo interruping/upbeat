@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import time
 
-from upbeat.strategies._base import AsyncClientProtocol, SyncClientProtocol
+from upbeat._protocols import AsyncClientProtocol, SyncClientProtocol
 from upbeat.types.order import CancelResult, OrderCreated, OrderDetail
 
 
