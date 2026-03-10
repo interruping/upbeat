@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from upbeat.strategies.order_helpers import (
+from upbeat.shortcuts._order_helpers import (
     cancel_all_orders,
     market_buy_krw,
     place_and_wait,
@@ -78,7 +78,7 @@ class TestMarketBuyKrw:
 
 
 class TestPlaceAndWait:
-    @patch("upbeat.strategies.order_helpers.time.sleep")
+    @patch("upbeat.shortcuts._order_helpers.time.sleep")
     def test_immediate_fill(self, mock_sleep: MagicMock) -> None:
         client = MagicMock()
         client.orders.create.return_value = _make_order_created()
@@ -97,8 +97,8 @@ class TestPlaceAndWait:
         assert result.state == "done"
         mock_sleep.assert_not_called()
 
-    @patch("upbeat.strategies.order_helpers.time.sleep")
-    @patch("upbeat.strategies.order_helpers.time.monotonic")
+    @patch("upbeat.shortcuts._order_helpers.time.sleep")
+    @patch("upbeat.shortcuts._order_helpers.time.monotonic")
     def test_poll_then_fill(
         self, mock_monotonic: MagicMock, mock_sleep: MagicMock
     ) -> None:
@@ -124,8 +124,8 @@ class TestPlaceAndWait:
         assert result.state == "done"
         mock_sleep.assert_called_once_with(1.0)
 
-    @patch("upbeat.strategies.order_helpers.time.sleep")
-    @patch("upbeat.strategies.order_helpers.time.monotonic")
+    @patch("upbeat.shortcuts._order_helpers.time.sleep")
+    @patch("upbeat.shortcuts._order_helpers.time.monotonic")
     def test_timeout(
         self, mock_monotonic: MagicMock, mock_sleep: MagicMock
     ) -> None:
@@ -145,7 +145,7 @@ class TestPlaceAndWait:
                 timeout=10.0,
             )
 
-    @patch("upbeat.strategies.order_helpers.time.sleep")
+    @patch("upbeat.shortcuts._order_helpers.time.sleep")
     def test_canceled_order(self, mock_sleep: MagicMock) -> None:
         client = MagicMock()
         client.orders.create.return_value = _make_order_created()

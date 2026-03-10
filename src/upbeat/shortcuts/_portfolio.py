@@ -1,10 +1,19 @@
 from __future__ import annotations
 
-from upbeat.strategies._base import (
-    AsyncClientProtocol,
-    PortfolioItem,
-    SyncClientProtocol,
-)
+from pydantic import BaseModel, ConfigDict
+
+from upbeat._protocols import AsyncClientProtocol, SyncClientProtocol
+
+
+class PortfolioItem(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    currency: str
+    balance: float
+    locked: float
+    current_price: float
+    market: str
+    estimated_value_krw: float
 
 
 def get_portfolio_value(client: SyncClientProtocol) -> float:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from upbeat.strategies.portfolio import get_portfolio, get_portfolio_value
+from upbeat.shortcuts._portfolio import get_portfolio, get_portfolio_value
 from upbeat.types.account import Account
 from upbeat.types.quotation import Ticker
 

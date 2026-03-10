@@ -3,17 +3,16 @@ from __future__ import annotations
 from decimal import Decimal
 
 from upbeat._constants import round_to_tick
-from upbeat.strategies._base import (
-    AsyncClientProtocol,
-    RebalanceOrder,
-    RebalanceResult,
-    SyncClientProtocol,
-)
-from upbeat.strategies.portfolio import (
+from upbeat._protocols import AsyncClientProtocol, SyncClientProtocol
+from upbeat.shortcuts._portfolio import (
     async_get_portfolio,
     async_get_portfolio_value,
     get_portfolio,
     get_portfolio_value,
+)
+from upbeat.strategies._base import (
+    RebalanceOrder,
+    RebalanceResult,
 )
 
 _MIN_ORDER_KRW = 5_000.0

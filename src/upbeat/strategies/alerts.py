@@ -5,7 +5,7 @@ import time
 from collections.abc import Callable
 from typing import Literal
 
-from upbeat.strategies._base import AsyncClientProtocol, SyncClientProtocol
+from upbeat._protocols import AsyncClientProtocol, SyncClientProtocol
 
 
 def price_alert(

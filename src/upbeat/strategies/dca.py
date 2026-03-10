@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import time
 
-from upbeat.strategies._base import AsyncClientProtocol, DCAResult, SyncClientProtocol
-from upbeat.strategies.order_helpers import async_market_buy_krw, market_buy_krw
+from upbeat._protocols import AsyncClientProtocol, SyncClientProtocol
+from upbeat.shortcuts._order_helpers import async_market_buy_krw, market_buy_krw
+from upbeat.strategies._base import DCAResult
 from upbeat.types.order import OrderCreated
 
 
