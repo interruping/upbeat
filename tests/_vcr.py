@@ -1,20 +1,25 @@
-"""VCR 카세트용 커스텀 YAML serializer.
+"""VCR 설정 및 커스텀 YAML serializer.
 
-- 응답 body를 pretty-print JSON으로 변환
-- 멀티라인 문자열을 YAML literal block scalar(|)로 저장
+- 기본 record_mode="none" → CI에서 실 API 호출 차단
+- VCR_RECORD_MODE 환경변수로 녹화 모드 전환
+- 응답 body를 pretty-print JSON + YAML literal block scalar(|)로 저장
 """
 
 from __future__ import annotations
 
 import json
+import os
+import sys
 from typing import Any
 
+import vcr
 import yaml
+from vcr.record_mode import RecordMode
 
 # ── Pretty JSON body ────────────────────────────────────────────────────
 
 
-def pretty_json_body(response: dict) -> dict:
+def _pretty_json_body(response: dict) -> dict:
     """응답 body가 JSON이면 정렬·들여쓰기하여 카세트에 읽기 좋게 저장한다."""
     body = response.get("body", {}).get("string", "")
     # 리플레이 시 bytes로 로드된 body는 건드리지 않는다
@@ -81,3 +86,21 @@ def serialize(cassette_dict: dict) -> str:
 def deserialize(cassette_string: str) -> Any:
     data = yaml.safe_load(cassette_string)
     return _ensure_body_bytes(data)
+
+
+# ── VCR 인스턴스 ────────────────────────────────────────────────────────
+
+# tests/_vcr 모듈 자체가 serialize/deserialize를 갖고 있으므로
+# register_serializer에 모듈을 직접 등록한다.
+_this_module = sys.modules[__name__]
+
+upbeat_vcr = vcr.VCR(
+    cassette_library_dir="tests/cassettes",
+    filter_headers=[("Authorization", "REDACTED")],
+    filter_query_parameters=["access_key"],
+    decode_compressed_response=True,
+    record_mode=RecordMode(os.environ.get("VCR_RECORD_MODE", "none")),
+    before_record_response=_pretty_json_body,
+)
+upbeat_vcr.register_serializer("pretty-yaml", _this_module)
+upbeat_vcr.serializer = "pretty-yaml"
