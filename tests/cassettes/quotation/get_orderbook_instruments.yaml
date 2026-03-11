@@ -1,0 +1,63 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/orderbook/instruments?markets=KRW-BTC
+  response:
+    body:
+      string: |-
+        [
+          {
+            "market": "KRW-BTC",
+            "quote_currency": "KRW",
+            "tick_size": "1000",
+            "supported_levels": [
+              "0",
+              "10000",
+              "100000",
+              "1000000",
+              "10000000",
+              "100000000"
+            ]
+          }
+        ]
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '139'
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Wed, 11 Mar 2026 14:40:59 GMT
+      ETag:
+      - W/"034e7c494fb815a503786f7551ede9810"
+      Expires:
+      - '0'
+      Limit-By-Ip:
+      - 'Yes'
+      Pragma:
+      - no-cache
+      Remaining-Req:
+      - group=orderbook; min=600; sec=8
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: ''
+version: 1

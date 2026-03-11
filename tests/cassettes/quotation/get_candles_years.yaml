@@ -1,0 +1,63 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/candles/years?market=KRW-BTC
+  response:
+    body:
+      string: |-
+        [
+          {
+            "market": "KRW-BTC",
+            "candle_date_time_utc": "2026-01-01T00:00:00",
+            "candle_date_time_kst": "2026-01-01T09:00:00",
+            "opening_price": 128000000.0,
+            "high_price": 143050000.0,
+            "low_price": 89000000.0,
+            "trade_price": 103458000.0,
+            "timestamp": 1773240058227,
+            "candle_acc_trade_price": 17343033068679.969,
+            "candle_acc_trade_volume": 158145.17293,
+            "first_day_of_period": "2026-01-01"
+          }
+        ]
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Wed, 11 Mar 2026 14:40:59 GMT
+      ETag:
+      - W/"04d6f240fd20db2771af2f44a98eec345"
+      Expires:
+      - '0'
+      Limit-By-Ip:
+      - 'Yes'
+      Pragma:
+      - no-cache
+      Remaining-Req:
+      - group=candles; min=600; sec=4
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - origin,access-control-request-method,access-control-request-headers,accept-encoding
+      content-length:
+      - '394'
+    status:
+      code: 200
+      message: ''
+version: 1
