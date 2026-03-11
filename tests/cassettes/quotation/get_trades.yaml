@@ -1,0 +1,62 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/trades/ticks?market=KRW-BTC
+  response:
+    body:
+      string: |-
+        [
+          {
+            "market": "KRW-BTC",
+            "trade_date_utc": "2026-03-11",
+            "trade_time_utc": "14:40:59",
+            "timestamp": 1773240059095,
+            "trade_price": 103460000.0,
+            "trade_volume": 0.004,
+            "prev_closing_price": 102417000.0,
+            "change_price": 1043000.0,
+            "ask_bid": "ASK",
+            "sequential_id": 17732400590950000
+          }
+        ]
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Wed, 11 Mar 2026 14:40:59 GMT
+      ETag:
+      - W/"0a6b8854d7c51a408870657a25a3b8b3f"
+      Expires:
+      - '0'
+      Limit-By-Ip:
+      - 'Yes'
+      Pragma:
+      - no-cache
+      Remaining-Req:
+      - group=crix-trades; min=600; sec=9
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - origin,access-control-request-method,access-control-request-headers,accept-encoding
+      content-length:
+      - '287'
+    status:
+      code: 200
+      message: ''
+version: 1
