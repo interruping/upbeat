@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from decimal import Decimal
 from typing import Any
 
@@ -35,6 +36,9 @@ def _compute_bid_total(
     return Decimal(price)
 
 
+_DEFAULT_MIN_TOTAL_TTL: float = 60.0
+
+
 class OrdersAPI(_SyncAPIResource):
     _validate_min_order: bool
 
@@ -44,9 +48,20 @@ class OrdersAPI(_SyncAPIResource):
         credentials: Credentials | None,
         *,
         validate_min_order: bool = False,
+        min_total_ttl: float = _DEFAULT_MIN_TOTAL_TTL,
     ) -> None:
         super().__init__(transport, credentials)
         self._validate_min_order = validate_min_order
+        self._min_total_ttl = min_total_ttl
+        self._min_total_cache: dict[str, tuple[str, float]] = {}
+
+    def _get_cached_min_total(self, market: str) -> str | None:
+        entry = self._min_total_cache.get(market)
+        if entry is not None:
+            value, expiry = entry
+            if time.monotonic() < expiry:
+                return value
+        return None
 
     def _check_min_order(
         self,
@@ -61,8 +76,25 @@ class OrdersAPI(_SyncAPIResource):
         total = _compute_bid_total(price, volume, ord_type)
         if total is None:
             return
+
+        cached = self._get_cached_min_total(market)
+        if cached is not None:
+            min_total = Decimal(cached)
+            if total < min_total:
+                raise ValidationError(
+                    f"Order total {total} is below minimum {min_total} for {market}",
+                    market=market,
+                    total=str(total),
+                    min_total=cached,
+                )
+            return
+
         chance = self.get_chance(market=market)
         if chance.market.bid is not None:
+            self._min_total_cache[market] = (
+                chance.market.bid.min_total,
+                time.monotonic() + self._min_total_ttl,
+            )
             min_total = Decimal(chance.market.bid.min_total)
             if total < min_total:
                 raise ValidationError(
@@ -305,9 +337,20 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         credentials: Credentials | None,
         *,
         validate_min_order: bool = False,
+        min_total_ttl: float = _DEFAULT_MIN_TOTAL_TTL,
     ) -> None:
         super().__init__(transport, credentials)
         self._validate_min_order = validate_min_order
+        self._min_total_ttl = min_total_ttl
+        self._min_total_cache: dict[str, tuple[str, float]] = {}
+
+    def _get_cached_min_total(self, market: str) -> str | None:
+        entry = self._min_total_cache.get(market)
+        if entry is not None:
+            value, expiry = entry
+            if time.monotonic() < expiry:
+                return value
+        return None
 
     async def _check_min_order(
         self,
@@ -322,8 +365,25 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         total = _compute_bid_total(price, volume, ord_type)
         if total is None:
             return
+
+        cached = self._get_cached_min_total(market)
+        if cached is not None:
+            min_total = Decimal(cached)
+            if total < min_total:
+                raise ValidationError(
+                    f"Order total {total} is below minimum {min_total} for {market}",
+                    market=market,
+                    total=str(total),
+                    min_total=cached,
+                )
+            return
+
         chance = await self.get_chance(market=market)
         if chance.market.bid is not None:
+            self._min_total_cache[market] = (
+                chance.market.bid.min_total,
+                time.monotonic() + self._min_total_ttl,
+            )
             min_total = Decimal(chance.market.bid.min_total)
             if total < min_total:
                 raise ValidationError(
