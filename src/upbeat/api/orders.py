@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any
 
+from upbeat._auth import Credentials
 from upbeat._base import _AsyncAPIResource, _SyncAPIResource
+from upbeat._errors import ValidationError
+from upbeat._http import AsyncTransport, SyncTransport
 from upbeat.types.order import (
     CancelAndNewOrderResponse,
     CancelResult,
@@ -20,7 +24,54 @@ def _filter_params(**kwargs: Any) -> dict[str, Any]:
     return {k: v for k, v in kwargs.items() if v is not None}
 
 
+def _compute_bid_total(
+    price: str | None, volume: str | None, ord_type: str
+) -> Decimal | None:
+    """Return the total KRW value of a bid order, or None if indeterminate."""
+    if price is None:
+        return None
+    if ord_type == "limit":
+        return Decimal(price) * Decimal(volume) if volume is not None else None
+    return Decimal(price)
+
+
 class OrdersAPI(_SyncAPIResource):
+    _validate_min_order: bool
+
+    def __init__(
+        self,
+        transport: SyncTransport,
+        credentials: Credentials | None,
+        *,
+        validate_min_order: bool = False,
+    ) -> None:
+        super().__init__(transport, credentials)
+        self._validate_min_order = validate_min_order
+
+    def _check_min_order(
+        self,
+        market: str,
+        side: str,
+        price: str | None,
+        volume: str | None,
+        ord_type: str,
+    ) -> None:
+        if not self._validate_min_order or side != "bid":
+            return
+        total = _compute_bid_total(price, volume, ord_type)
+        if total is None:
+            return
+        chance = self.get_chance(market=market)
+        if chance.market.bid is not None:
+            min_total = Decimal(chance.market.bid.min_total)
+            if total < min_total:
+                raise ValidationError(
+                    f"Order total {total} is below minimum {min_total} for {market}",
+                    market=market,
+                    price=str(total),
+                    min_total=chance.market.bid.min_total,
+                )
+
     def create(
         self,
         *,
@@ -33,6 +84,7 @@ class OrdersAPI(_SyncAPIResource):
         time_in_force: str | None = None,
         smp_type: str | None = None,
     ) -> OrderCreated:
+        self._check_min_order(market, side, price, volume, ord_type)
         json_body = _filter_params(
             market=market,
             side=side,
@@ -60,6 +112,7 @@ class OrdersAPI(_SyncAPIResource):
         time_in_force: str | None = None,
         smp_type: str | None = None,
     ) -> OrderCreated:
+        self._check_min_order(market, side, price, volume, ord_type)
         json_body = _filter_params(
             market=market,
             side=side,
@@ -244,6 +297,42 @@ class OrdersAPI(_SyncAPIResource):
 
 
 class AsyncOrdersAPI(_AsyncAPIResource):
+    _validate_min_order: bool
+
+    def __init__(
+        self,
+        transport: AsyncTransport,
+        credentials: Credentials | None,
+        *,
+        validate_min_order: bool = False,
+    ) -> None:
+        super().__init__(transport, credentials)
+        self._validate_min_order = validate_min_order
+
+    async def _check_min_order(
+        self,
+        market: str,
+        side: str,
+        price: str | None,
+        volume: str | None,
+        ord_type: str,
+    ) -> None:
+        if not self._validate_min_order or side != "bid":
+            return
+        total = _compute_bid_total(price, volume, ord_type)
+        if total is None:
+            return
+        chance = await self.get_chance(market=market)
+        if chance.market.bid is not None:
+            min_total = Decimal(chance.market.bid.min_total)
+            if total < min_total:
+                raise ValidationError(
+                    f"Order total {total} is below minimum {min_total} for {market}",
+                    market=market,
+                    price=str(total),
+                    min_total=chance.market.bid.min_total,
+                )
+
     async def create(
         self,
         *,
@@ -256,6 +345,7 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         time_in_force: str | None = None,
         smp_type: str | None = None,
     ) -> OrderCreated:
+        await self._check_min_order(market, side, price, volume, ord_type)
         json_body = _filter_params(
             market=market,
             side=side,
@@ -283,6 +373,7 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         time_in_force: str | None = None,
         smp_type: str | None = None,
     ) -> OrderCreated:
+        await self._check_min_order(market, side, price, volume, ord_type)
         json_body = _filter_params(
             market=market,
             side=side,

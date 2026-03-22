@@ -8,6 +8,7 @@ import pytest
 
 from upbeat._auth import Credentials
 from upbeat._constants import API_BASE_URL
+from upbeat._errors import ValidationError
 from upbeat._http import AsyncTransport, SyncTransport
 from upbeat.api.orders import AsyncOrdersAPI, OrdersAPI
 from upbeat.types.order import (
@@ -583,3 +584,119 @@ class TestAsyncOrders:
         api = AsyncOrdersAPI(transport, CREDENTIALS)
         result = await api.get_chance(market="KRW-BTC")
         assert isinstance(result, OrderChance)
+
+
+# ── TestMinOrderValidation ──────────────────────────────────────────────
+
+
+def _multi_handler(request: httpx.Request) -> httpx.Response:
+    """Handle both /v1/orders/chance and /v1/orders endpoints."""
+    if request.url.path == "/v1/orders/chance":
+        return _json_response(ORDER_CHANCE_DATA)
+    if request.url.path in ("/v1/orders", "/v1/orders/test"):
+        return _json_response(ORDER_CREATED_DATA, status_code=201)
+    return httpx.Response(404)
+
+
+async def _async_multi_handler(request: httpx.Request) -> httpx.Response:
+    return _multi_handler(request)
+
+
+class TestMinOrderValidation:
+    def test_validation_disabled_by_default(self) -> None:
+        called_chance = False
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal called_chance
+            if request.url.path == "/v1/orders/chance":
+                called_chance = True
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS)
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
+        assert not called_chance
+
+    def test_validation_raises_for_low_bid_market_order(self) -> None:
+        transport = _make_transport(_multi_handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        with pytest.raises(ValidationError) as exc_info:
+            api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
+        assert exc_info.value.market == "KRW-BTC"
+        assert exc_info.value.price == "3000"
+        assert exc_info.value.min_total == "5000"
+
+    def test_validation_raises_for_low_bid_limit_order(self) -> None:
+        transport = _make_transport(_multi_handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        with pytest.raises(ValidationError):
+            api.create(
+                market="KRW-BTC", side="bid", ord_type="limit",
+                price="1000", volume="3",
+            )
+
+    def test_validation_passes_for_sufficient_bid(self) -> None:
+        transport = _make_transport(_multi_handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        result = api.create(
+            market="KRW-BTC", side="bid", ord_type="price", price="6000"
+        )
+        assert isinstance(result, OrderCreated)
+
+    def test_validation_skips_ask_orders(self) -> None:
+        called_chance = False
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal called_chance
+            if request.url.path == "/v1/orders/chance":
+                called_chance = True
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        api.create(
+            market="KRW-BTC", side="ask", ord_type="market", volume="0.001"
+        )
+        assert not called_chance
+
+    def test_validation_skips_when_price_none(self) -> None:
+        called_chance = False
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal called_chance
+            if request.url.path == "/v1/orders/chance":
+                called_chance = True
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        api.create(market="KRW-BTC", side="bid", ord_type="market", volume="0.001")
+        assert not called_chance
+
+    def test_validation_on_create_test(self) -> None:
+        transport = _make_transport(_multi_handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        with pytest.raises(ValidationError):
+            api.create_test(
+                market="KRW-BTC", side="bid", ord_type="price", price="3000"
+            )
+
+    @pytest.mark.asyncio
+    async def test_async_validation_raises(self) -> None:
+        transport = _make_async_transport(_async_multi_handler)
+        api = AsyncOrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        with pytest.raises(ValidationError) as exc_info:
+            await api.create(
+                market="KRW-BTC", side="bid", ord_type="price", price="3000"
+            )
+        assert exc_info.value.market == "KRW-BTC"
+        assert exc_info.value.min_total == "5000"
+
+    @pytest.mark.asyncio
+    async def test_async_validation_passes(self) -> None:
+        transport = _make_async_transport(_async_multi_handler)
+        api = AsyncOrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        result = await api.create(
+            market="KRW-BTC", side="bid", ord_type="price", price="6000"
+        )
+        assert isinstance(result, OrderCreated)
