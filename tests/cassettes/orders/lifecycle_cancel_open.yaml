@@ -1,0 +1,120 @@
+interactions:
+- request:
+    body: '{"market":"KRW-BTC","side":"bid","volume":"0.0005","price":"10000000","ord_type":"limit"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '89'
+      Content-Type:
+      - application/json; charset=utf-8
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.upbit.com/v1/orders
+  response:
+    body:
+      string: |-
+        {
+          "uuid": "ae6a8b3c-0d98-4bf9-a9fa-3d7ebfc67c90",
+          "side": "bid",
+          "ord_type": "limit",
+          "price": "10000000",
+          "state": "wait",
+          "market": "KRW-BTC",
+          "created_at": "2026-03-22T21:42:29+09:00",
+          "volume": "0.0005",
+          "remaining_volume": "0.0005",
+          "prevented_volume": "0",
+          "reserved_fee": "2.5",
+          "remaining_fee": "2.5",
+          "paid_fee": "0",
+          "locked": "5002.5",
+          "prevented_locked": "0",
+          "executed_volume": "0",
+          "trades_count": 0
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:42:29 GMT
+      Remaining-Req:
+      - group=order; min=480; sec=5
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 201
+      message: Created
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: DELETE
+    uri: https://api.upbit.com/v1/orders/open
+  response:
+    body:
+      string: |-
+        {
+          "success": {
+            "count": 1,
+            "orders": [
+              {
+                "uuid": "ae6a8b3c-0d98-4bf9-a9fa-3d7ebfc67c90",
+                "market": "KRW-BTC"
+              }
+            ]
+          },
+          "failed": {
+            "count": 0,
+            "orders": []
+          }
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:42:29 GMT
+      Remaining-Req:
+      - group=order-cancel-all; min=30; sec=0
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: OK
+version: 1
