@@ -32,7 +32,7 @@ class OrderCreated(BaseModel):
     state: str
     created_at: str
     volume: str | None = None
-    remaining_volume: str
+    remaining_volume: str | None = None
     executed_volume: str
     reserved_fee: str
     remaining_fee: str
@@ -42,8 +42,8 @@ class OrderCreated(BaseModel):
     time_in_force: str | None = None
     identifier: str | None = None
     smp_type: str | None = None
-    prevented_volume: str
-    prevented_locked: str
+    prevented_volume: str | None = None
+    prevented_locked: str | None = None
 
 
 # ── OrderDetail (GET /v1/order 응답) ────────────────────────────────────

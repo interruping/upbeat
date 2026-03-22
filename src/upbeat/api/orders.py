@@ -235,12 +235,12 @@ class OrdersAPI(_SyncAPIResource):
         )
         return CancelAndNewOrderResponse.model_validate(response.data)
 
-    def get_chance(self, *, market: str) -> list[OrderChance]:
+    def get_chance(self, *, market: str) -> OrderChance:
         params = {"market": market}
         response = self._transport.request(
             "GET", "/v1/orders/chance", params=params, credentials=self._credentials
         )
-        return [OrderChance.model_validate(item) for item in response.data]
+        return OrderChance.model_validate(response.data)
 
 
 class AsyncOrdersAPI(_AsyncAPIResource):
@@ -458,9 +458,9 @@ class AsyncOrdersAPI(_AsyncAPIResource):
         )
         return CancelAndNewOrderResponse.model_validate(response.data)
 
-    async def get_chance(self, *, market: str) -> list[OrderChance]:
+    async def get_chance(self, *, market: str) -> OrderChance:
         params = {"market": market}
         response = await self._transport.request(
             "GET", "/v1/orders/chance", params=params, credentials=self._credentials
         )
-        return [OrderChance.model_validate(item) for item in response.data]
+        return OrderChance.model_validate(response.data)
