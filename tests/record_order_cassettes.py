@@ -5,7 +5,7 @@ KRW-BTC 마켓에서 10,000원으로 매수 후 즉시 전량 매도한다.
 
 사용법:
     UPBIT_ACCESS_KEY=xxx UPBIT_SECRET_KEY=yyy \
-        uv run python scripts/record_order_cassettes.py
+        uv run python tests/record_order_cassettes.py
 """
 
 from __future__ import annotations
@@ -14,12 +14,8 @@ import os
 import sys
 import time
 
-# 프로젝트 루트의 tests 모듈을 import하기 위해 경로 추가
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-from tests._vcr import upbeat_vcr  # noqa: E402
-
-from upbeat import Upbeat  # noqa: E402
+from tests._vcr import upbeat_vcr
+from upbeat import Upbeat
 
 _MARKET = "KRW-BTC"
 _BUY_AMOUNT = "10000"  # 매도 시 최소금액(5000원) 확보를 위해 넉넉히
