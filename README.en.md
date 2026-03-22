@@ -51,6 +51,7 @@ async with AsyncUpbeat(access_key="...", secret_key="...") as client:
 - Full REST API coverage (Quotation + Exchange)
 - WebSocket real-time data streaming
 - Type-safe with Pydantic v2 models
+- Client-side minimum order amount validation (`validate_min_order`)
 - Automatic retry with exponential backoff
 - Smart rate limiting (`Remaining-Req` header tracking)
 - JWT authentication (HS512)
@@ -138,6 +139,7 @@ client = Upbeat(
     timeout=Timeout(connect=10.0, read=30.0),
     max_retries=3,
     logger=my_custom_logger,  # Logger Protocol implementation
+    validate_min_order=True,  # Pre-validate minimum order amount
 )
 
 # Per-request override
@@ -160,9 +162,15 @@ client = Upbeat(
 ## Error Handling
 
 ```python
-from upbeat import Upbeat, RateLimitError, InsufficientFundsError, NotFoundError
+from upbeat import (
+    Upbeat,
+    RateLimitError,
+    InsufficientFundsError,
+    NotFoundError,
+    ValidationError,
+)
 
-client = Upbeat(access_key="...", secret_key="...")
+client = Upbeat(access_key="...", secret_key="...", validate_min_order=True)
 
 try:
     order = client.orders.create(
@@ -172,6 +180,8 @@ try:
         volume="0.001",
         price="50000000",
     )
+except ValidationError as e:
+    print(f"Below minimum: {e.total} < min {e.min_total} ({e.market})")
 except InsufficientFundsError as e:
     print(f"Insufficient funds: {e.error_message}")
 except RateLimitError as e:
@@ -184,6 +194,7 @@ except NotFoundError as e:
 
 ```
 UpbeatError
+  ValidationError
   APIError
     APIStatusError
       BadRequestError (400)

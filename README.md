@@ -53,6 +53,7 @@ async with AsyncUpbeat(access_key="...", secret_key="...") as client:
 - REST API 전체 커버리지 (시세 + 거래)
 - WebSocket 실시간 데이터 스트리밍
 - Pydantic v2 기반 타입 안전한 모델
+- 매수 주문 최소금액 클라이언트 사전 검증 (`validate_min_order`)
 - 지수 백오프 자동 재시도
 - `Remaining-Req` 헤더 기반 스마트 Rate Limit 관리
 - JWT 인증 (HS512)
@@ -140,6 +141,7 @@ client = Upbeat(
     timeout=Timeout(connect=10.0, read=30.0),
     max_retries=3,
     logger=my_custom_logger,  # Logger Protocol 구현체
+    validate_min_order=True,  # 매수 주문 최소금액 사전 검증
 )
 
 # 퍼-리퀘스트 오버라이드
@@ -162,9 +164,15 @@ client = Upbeat(
 ## 에러 처리
 
 ```python
-from upbeat import Upbeat, RateLimitError, InsufficientFundsError, NotFoundError
+from upbeat import (
+    Upbeat,
+    RateLimitError,
+    InsufficientFundsError,
+    NotFoundError,
+    ValidationError,
+)
 
-client = Upbeat(access_key="...", secret_key="...")
+client = Upbeat(access_key="...", secret_key="...", validate_min_order=True)
 
 try:
     order = client.orders.create(
@@ -174,6 +182,8 @@ try:
         volume="0.001",
         price="50000000",
     )
+except ValidationError as e:
+    print(f"주문금액 미달: {e.total} < 최소 {e.min_total} ({e.market})")
 except InsufficientFundsError as e:
     print(f"잔고 부족: {e.error_message}")
 except RateLimitError as e:
@@ -186,6 +196,7 @@ except NotFoundError as e:
 
 ```
 UpbeatError
+  ValidationError
   APIError
     APIStatusError
       BadRequestError (400)
