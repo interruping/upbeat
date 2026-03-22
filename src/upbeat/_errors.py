@@ -46,7 +46,7 @@ class ValidationError(UpbeatError):
     """Raised when client-side validation catches an invalid order before sending."""
 
     market: str
-    price: str
+    total: str
     min_total: str
 
     def __init__(
@@ -54,12 +54,12 @@ class ValidationError(UpbeatError):
         message: str,
         *,
         market: str,
-        price: str,
+        total: str,
         min_total: str,
     ) -> None:
         super().__init__(message)
         self.market = market
-        self.price = price
+        self.total = total
         self.min_total = min_total
 
 

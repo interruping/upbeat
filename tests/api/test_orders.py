@@ -623,7 +623,7 @@ class TestMinOrderValidation:
         with pytest.raises(ValidationError) as exc_info:
             api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
         assert exc_info.value.market == "KRW-BTC"
-        assert exc_info.value.price == "3000"
+        assert exc_info.value.total == "3000"
         assert exc_info.value.min_total == "5000"
 
     def test_validation_raises_for_low_bid_limit_order(self) -> None:

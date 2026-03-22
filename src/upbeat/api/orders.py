@@ -68,7 +68,7 @@ class OrdersAPI(_SyncAPIResource):
                 raise ValidationError(
                     f"Order total {total} is below minimum {min_total} for {market}",
                     market=market,
-                    price=str(total),
+                    total=str(total),
                     min_total=chance.market.bid.min_total,
                 )
 
@@ -329,7 +329,7 @@ class AsyncOrdersAPI(_AsyncAPIResource):
                 raise ValidationError(
                     f"Order total {total} is below minimum {min_total} for {market}",
                     market=market,
-                    price=str(total),
+                    total=str(total),
                     min_total=chance.market.bid.min_total,
                 )
 
