@@ -732,7 +732,7 @@ class TestMinOrderCache:
 
         transport = _make_transport(handler)
         api = OrdersAPI(
-            transport, CREDENTIALS, validate_min_order=True, min_total_ttl=0.0
+            transport, CREDENTIALS, validate_min_order=True, min_total_ttl=-1.0
         )
         api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
         api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")

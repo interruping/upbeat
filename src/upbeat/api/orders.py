@@ -61,6 +61,7 @@ class OrdersAPI(_SyncAPIResource):
             value, expiry = entry
             if time.monotonic() < expiry:
                 return value
+            del self._min_total_cache[market]
         return None
 
     def _check_min_order(
@@ -350,6 +351,7 @@ class AsyncOrdersAPI(_AsyncAPIResource):
             value, expiry = entry
             if time.monotonic() < expiry:
                 return value
+            del self._min_total_cache[market]
         return None
 
     async def _check_min_order(
