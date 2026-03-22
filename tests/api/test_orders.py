@@ -512,27 +512,26 @@ class TestGetOrderChance:
         def handler(request: httpx.Request) -> httpx.Response:
             assert request.url.path == "/v1/orders/chance"
             assert request.url.params["market"] == "KRW-BTC"
-            return _json_response([ORDER_CHANCE_DATA])
+            return _json_response(ORDER_CHANCE_DATA)
 
         transport = _make_transport(handler)
         api = OrdersAPI(transport, CREDENTIALS)
         result = api.get_chance(market="KRW-BTC")
-        assert len(result) == 1
-        assert isinstance(result[0], OrderChance)
-        assert result[0].bid_fee == "0.0005"
+        assert isinstance(result, OrderChance)
+        assert result.bid_fee == "0.0005"
 
     def test_parses_nested_objects(self) -> None:
         def handler(request: httpx.Request) -> httpx.Response:
-            return _json_response([ORDER_CHANCE_DATA])
+            return _json_response(ORDER_CHANCE_DATA)
 
         transport = _make_transport(handler)
         api = OrdersAPI(transport, CREDENTIALS)
         result = api.get_chance(market="KRW-BTC")
-        assert result[0].market.id == "KRW-BTC"
-        assert result[0].market.bid is not None
-        assert result[0].market.bid.currency == "KRW"
-        assert result[0].bid_account.currency == "KRW"
-        assert result[0].ask_account.currency == "BTC"
+        assert result.market.id == "KRW-BTC"
+        assert result.market.bid is not None
+        assert result.market.bid.currency == "KRW"
+        assert result.bid_account.currency == "KRW"
+        assert result.ask_account.currency == "BTC"
 
 
 # ── TestAsyncOrders ──────────────────────────────────────────────────────
@@ -578,10 +577,9 @@ class TestAsyncOrders:
     @pytest.mark.asyncio
     async def test_get_chance(self) -> None:
         async def handler(request: httpx.Request) -> httpx.Response:
-            return _json_response([ORDER_CHANCE_DATA])
+            return _json_response(ORDER_CHANCE_DATA)
 
         transport = _make_async_transport(handler)
         api = AsyncOrdersAPI(transport, CREDENTIALS)
         result = await api.get_chance(market="KRW-BTC")
-        assert len(result) == 1
-        assert isinstance(result[0], OrderChance)
+        assert isinstance(result, OrderChance)
