@@ -1,0 +1,324 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/orders/closed
+  response:
+    body:
+      string: |-
+        [
+          {
+            "uuid": "a4337bbf-6d86-4361-bb34-180812fc87ce",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:34+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "56e7dbc5-35af-43bf-b8aa-c3361fb48e14",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10100000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:33+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.525",
+            "remaining_fee": "2.525",
+            "paid_fee": "0",
+            "locked": "5052.525",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "5443b788-252b-4e08-b467-408ff3c9009e",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:33+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "45b99b78-6e1e-4c29-95df-7a7b135c7963",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:32+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "65b4cf70-9036-4b37-8df3-d62824fb395d",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10500000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:31+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.625",
+            "remaining_fee": "2.625",
+            "paid_fee": "0",
+            "locked": "5252.625",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "766340f1-8d76-4fb5-a9c4-38077273a92e",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:31+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "c8ecd039-6b40-4112-8011-cbd1d58ef659",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:36:30+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "49be7a97-1f04-4e8d-bade-ccd51cd5a293",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:05+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "9823b686-109a-4487-b39f-2a94afea04eb",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10100000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:04+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.525",
+            "remaining_fee": "2.525",
+            "paid_fee": "0",
+            "locked": "5052.525",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "0dfbafd2-9527-447a-9714-d22481854791",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:03+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "e4a32d3d-c90b-4b5d-853d-3767b3607714",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:03+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "913cf8c2-7730-439a-9976-c1c77b953b1e",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10500000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:02+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.625",
+            "remaining_fee": "2.625",
+            "paid_fee": "0",
+            "locked": "5252.625",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "7723f2cd-57c7-478c-a5ab-515ef1e184f2",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:02+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          },
+          {
+            "uuid": "003b6bbd-684b-4921-a167-17cad043813f",
+            "side": "bid",
+            "ord_type": "limit",
+            "price": "10000000",
+            "state": "cancel",
+            "market": "KRW-BTC",
+            "created_at": "2026-03-22T21:33:01+09:00",
+            "volume": "0.0005",
+            "remaining_volume": "0.0005",
+            "prevented_volume": "0",
+            "reserved_fee": "2.5",
+            "remaining_fee": "2.5",
+            "paid_fee": "0",
+            "locked": "5002.5",
+            "prevented_locked": "0",
+            "executed_volume": "0",
+            "executed_funds": "0",
+            "trades_count": 0
+          }
+        ]
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:42:20 GMT
+      Remaining-Req:
+      - group=default; min=1800; sec=29
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: OK
+version: 1

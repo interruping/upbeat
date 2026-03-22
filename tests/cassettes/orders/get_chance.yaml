@@ -1,0 +1,101 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/orders/chance?market=KRW-BTC
+  response:
+    body:
+      string: |-
+        {
+          "bid_fee": "0.0005",
+          "ask_fee": "0.0005",
+          "maker_bid_fee": "0.0005",
+          "maker_ask_fee": "0.0005",
+          "market": {
+            "id": "KRW-BTC",
+            "name": "BTC/KRW",
+            "order_types": [
+              "limit"
+            ],
+            "order_sides": [
+              "ask",
+              "bid"
+            ],
+            "bid_types": [
+              "best_fok",
+              "best_ioc",
+              "limit",
+              "limit_fok",
+              "limit_ioc",
+              "price"
+            ],
+            "ask_types": [
+              "best_fok",
+              "best_ioc",
+              "limit",
+              "limit_fok",
+              "limit_ioc",
+              "market"
+            ],
+            "bid": {
+              "currency": "KRW",
+              "min_total": "5000"
+            },
+            "ask": {
+              "currency": "BTC",
+              "min_total": "5000"
+            },
+            "max_total": "1000000000",
+            "state": "active"
+          },
+          "bid_account": {
+            "currency": "KRW",
+            "balance": "50000.47088291",
+            "locked": "0",
+            "avg_buy_price": "0",
+            "avg_buy_price_modified": true,
+            "unit_currency": "KRW"
+          },
+          "ask_account": {
+            "currency": "BTC",
+            "balance": "0",
+            "locked": "0",
+            "avg_buy_price": "0",
+            "avg_buy_price_modified": false,
+            "unit_currency": "KRW"
+          }
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:42:12 GMT
+      Remaining-Req:
+      - group=default; min=1800; sec=29
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: OK
+version: 1

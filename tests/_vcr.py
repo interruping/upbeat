@@ -75,7 +75,28 @@ def _ensure_body_bytes(cassette_dict: dict) -> dict:
     return cassette_dict
 
 
+def _prettify_response_bodies(cassette_dict: dict) -> None:
+    """serialize 직전에 bytes body를 pretty JSON 문자열로 변환한다."""
+    for interaction in cassette_dict.get("interactions", []):
+        body = interaction.get("response", {}).get("body")
+        if not isinstance(body, dict):
+            continue
+        raw = body.get("string", "")
+        if isinstance(raw, bytes):
+            raw = raw.decode("utf-8")
+        try:
+            parsed = json.loads(raw)
+            body["string"] = json.dumps(
+                parsed, indent=2, ensure_ascii=False, sort_keys=False
+            )
+        except (json.JSONDecodeError, TypeError):
+            # JSON이 아니어도 bytes → str 변환은 필요 (YAML 저장용)
+            if isinstance(body.get("string"), bytes):
+                body["string"] = body["string"].decode("utf-8")
+
+
 def serialize(cassette_dict: dict) -> str:
+    _prettify_response_bodies(cassette_dict)
     return yaml.dump(
         _mark_multiline(cassette_dict),
         default_flow_style=False,

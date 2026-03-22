@@ -1,0 +1,262 @@
+interactions:
+- request:
+    body: '{"market":"KRW-BTC","side":"bid","price":"10000","ord_type":"price"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '68'
+      Content-Type:
+      - application/json; charset=utf-8
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.upbit.com/v1/orders
+  response:
+    body:
+      string: |-
+        {
+          "uuid": "fce8ffa4-c810-4446-946d-9fa2a6c80ab5",
+          "side": "bid",
+          "ord_type": "price",
+          "price": "10000",
+          "state": "wait",
+          "market": "KRW-BTC",
+          "created_at": "2026-03-22T21:47:08+09:00",
+          "reserved_fee": "5",
+          "remaining_fee": "5",
+          "paid_fee": "0",
+          "locked": "10005",
+          "prevented_locked": "0",
+          "executed_volume": "0",
+          "trades_count": 0
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:47:08 GMT
+      Remaining-Req:
+      - group=order; min=480; sec=7
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 201
+      message: Created
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/order?uuid=fce8ffa4-c810-4446-946d-9fa2a6c80ab5
+  response:
+    body:
+      string: |-
+        {
+          "uuid": "fce8ffa4-c810-4446-946d-9fa2a6c80ab5",
+          "side": "bid",
+          "ord_type": "price",
+          "price": "10000",
+          "state": "cancel",
+          "market": "KRW-BTC",
+          "created_at": "2026-03-22T21:47:08+09:00",
+          "reserved_fee": "5",
+          "remaining_fee": "0.000476075",
+          "paid_fee": "4.999523925",
+          "locked": "0.952626075",
+          "prevented_locked": "0",
+          "executed_volume": "0.00009713",
+          "trades_count": 1,
+          "trades": [
+            {
+              "market": "KRW-BTC",
+              "uuid": "7dd003ce-cfff-4d68-a75b-a00e325b0661",
+              "price": "102945000",
+              "volume": "0.00009713",
+              "funds": "9999.04785",
+              "trend": "up",
+              "created_at": "2026-03-22T21:47:08+09:00",
+              "side": "bid"
+            }
+          ]
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:47:09 GMT
+      Remaining-Req:
+      - group=default; min=1800; sec=29
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"market":"KRW-BTC","side":"ask","volume":"0.00009713","ord_type":"market"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '75'
+      Content-Type:
+      - application/json; charset=utf-8
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.upbit.com/v1/orders
+  response:
+    body:
+      string: |-
+        {
+          "uuid": "72091b0f-7d13-4a1e-aec5-1105a84783cd",
+          "side": "ask",
+          "ord_type": "market",
+          "state": "wait",
+          "market": "KRW-BTC",
+          "created_at": "2026-03-22T21:47:09+09:00",
+          "volume": "0.00009713",
+          "remaining_volume": "0.00009713",
+          "prevented_volume": "0",
+          "reserved_fee": "0",
+          "remaining_fee": "0",
+          "paid_fee": "0",
+          "locked": "0.00009713",
+          "prevented_locked": "0",
+          "executed_volume": "0",
+          "trades_count": 0
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:47:09 GMT
+      Remaining-Req:
+      - group=order; min=480; sec=7
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 201
+      message: Created
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - REDACTED
+      Connection:
+      - keep-alive
+      Host:
+      - api.upbit.com
+      User-Agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.upbit.com/v1/order?uuid=72091b0f-7d13-4a1e-aec5-1105a84783cd
+  response:
+    body:
+      string: |-
+        {
+          "uuid": "72091b0f-7d13-4a1e-aec5-1105a84783cd",
+          "side": "ask",
+          "ord_type": "market",
+          "state": "done",
+          "market": "KRW-BTC",
+          "created_at": "2026-03-22T21:47:09+09:00",
+          "volume": "0.00009713",
+          "remaining_volume": "0",
+          "prevented_volume": "0",
+          "reserved_fee": "0",
+          "remaining_fee": "0",
+          "paid_fee": "4.99743563",
+          "locked": "0",
+          "prevented_locked": "0",
+          "executed_volume": "0.00009713",
+          "trades_count": 1,
+          "trades": [
+            {
+              "market": "KRW-BTC",
+              "uuid": "5990f027-5856-4b90-be14-3a30e34b764c",
+              "price": "102902000",
+              "volume": "0.00009713",
+              "funds": "9994.87126",
+              "trend": "down",
+              "created_at": "2026-03-22T21:47:09+09:00",
+              "side": "ask"
+            }
+          ]
+        }
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Sun, 22 Mar 2026 12:47:10 GMT
+      Remaining-Req:
+      - group=default; min=1800; sec=29
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    status:
+      code: 200
+      message: OK
+version: 1
