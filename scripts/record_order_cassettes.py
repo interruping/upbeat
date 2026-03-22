@@ -1,7 +1,7 @@
 """시장가 매수→매도 VCR cassette 녹화 스크립트.
 
 실제 거래가 발생하므로 소량의 금전적 손실(스프레드+수수료)이 발생한다.
-KRW-BTC 마켓에서 최소금액(5,000원)으로 매수 후 즉시 전량 매도한다.
+KRW-BTC 마켓에서 10,000원으로 매수 후 즉시 전량 매도한다.
 
 사용법:
     UPBIT_ACCESS_KEY=xxx UPBIT_SECRET_KEY=yyy \
@@ -43,7 +43,7 @@ def main() -> None:
     print("=" * 60)
     print(f"  마켓: {_MARKET}")
     print(f"  매수 금액: {_BUY_AMOUNT}원")
-    print("  예상 손실: 스프레드 + 수수료 ≈ 50~100원")
+    print("  예상 손실: 스프레드 + 수수료 ≈ 100~200원")
     print(f"  Cassette: {_CASSETTE_PATH}")
     print("=" * 60)
     print()
