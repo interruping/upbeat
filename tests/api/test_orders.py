@@ -700,3 +700,98 @@ class TestMinOrderValidation:
             market="KRW-BTC", side="bid", ord_type="price", price="6000"
         )
         assert isinstance(result, OrderCreated)
+
+
+# ── TestMinOrderCache ──────────────────────────────────────────────────
+
+
+class TestMinOrderCache:
+    def test_cache_hit_skips_get_chance(self) -> None:
+        chance_calls = 0
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal chance_calls
+            if request.url.path == "/v1/orders/chance":
+                chance_calls += 1
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        assert chance_calls == 1
+
+    def test_cache_expires_after_ttl(self) -> None:
+        chance_calls = 0
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal chance_calls
+            if request.url.path == "/v1/orders/chance":
+                chance_calls += 1
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(
+            transport, CREDENTIALS, validate_min_order=True, min_total_ttl=-1.0
+        )
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        assert chance_calls == 2
+
+    def test_cache_is_per_market(self) -> None:
+        chance_calls = 0
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal chance_calls
+            if request.url.path == "/v1/orders/chance":
+                chance_calls += 1
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        api.create(market="KRW-ETH", side="bid", ord_type="price", price="6000")
+        assert chance_calls == 2
+
+    def test_cache_hit_still_validates(self) -> None:
+        transport = _make_transport(_multi_handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        # First call populates the cache
+        api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        # Second call should use cache but still raise for low total
+        with pytest.raises(ValidationError) as exc_info:
+            api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
+        assert exc_info.value.min_total == "5000"
+
+    def test_cache_populated_on_validation_failure(self) -> None:
+        chance_calls = 0
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal chance_calls
+            if request.url.path == "/v1/orders/chance":
+                chance_calls += 1
+            return _multi_handler(request)
+
+        transport = _make_transport(handler)
+        api = OrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        with pytest.raises(ValidationError):
+            api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
+        with pytest.raises(ValidationError):
+            api.create(market="KRW-BTC", side="bid", ord_type="price", price="3000")
+        assert chance_calls == 1
+
+    @pytest.mark.asyncio
+    async def test_async_cache_hit_skips_get_chance(self) -> None:
+        chance_calls = 0
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal chance_calls
+            if request.url.path == "/v1/orders/chance":
+                chance_calls += 1
+            return _multi_handler(request)
+
+        transport = _make_async_transport(handler)
+        api = AsyncOrdersAPI(transport, CREDENTIALS, validate_min_order=True)
+        await api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        await api.create(market="KRW-BTC", side="bid", ord_type="price", price="6000")
+        assert chance_calls == 1
