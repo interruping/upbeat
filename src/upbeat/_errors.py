@@ -39,6 +39,30 @@ class UpbeatError(Exception):
         self.message = message
 
 
+# ── Validation errors ─────────────────────────────────────────────────
+
+
+class ValidationError(UpbeatError):
+    """Raised when client-side validation catches an invalid order before sending."""
+
+    market: str
+    total: str
+    min_total: str
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        market: str,
+        total: str,
+        min_total: str,
+    ) -> None:
+        super().__init__(message)
+        self.market = market
+        self.total = total
+        self.min_total = min_total
+
+
 # ── API errors ───────────────────────────────────────────────────────────
 
 

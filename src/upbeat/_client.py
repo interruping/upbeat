@@ -42,6 +42,7 @@ class Upbeat:
         logger: Logger | None = None,
         http_client: httpx.Client | None = None,
         event_hooks: dict[str, list[Any]] | None = None,
+        validate_min_order: bool = False,
     ) -> None:
         if (access_key is None) != (secret_key is None):
             raise ValueError(
@@ -59,6 +60,7 @@ class Upbeat:
         self._max_retries = max_retries
         self._auto_throttle = auto_throttle
         self._logger = logger
+        self._validate_min_order = validate_min_order
         self._owns_http_client = http_client is None
         self._closed = False
 
@@ -84,7 +86,11 @@ class Upbeat:
 
     @cached_property
     def orders(self) -> OrdersAPI:
-        return OrdersAPI(self._transport, self._credentials)
+        return OrdersAPI(
+            self._transport,
+            self._credentials,
+            validate_min_order=self._validate_min_order,
+        )
 
     @cached_property
     def deposits(self) -> DepositsAPI:
@@ -131,6 +137,7 @@ class Upbeat:
         max_retries: int | None = None,
         auto_throttle: bool | None = None,
         logger: Logger | None = None,
+        validate_min_order: bool | None = None,
     ) -> Upbeat:
         new = Upbeat.__new__(Upbeat)
         new._credentials = self._credentials
@@ -141,6 +148,11 @@ class Upbeat:
             auto_throttle if auto_throttle is not None else self._auto_throttle
         )
         new._logger = logger if logger is not None else self._logger
+        new._validate_min_order = (
+            validate_min_order
+            if validate_min_order is not None
+            else self._validate_min_order
+        )
         new._owns_http_client = False
         new._closed = False
 
@@ -176,6 +188,7 @@ class AsyncUpbeat:
         logger: Logger | None = None,
         http_client: httpx.AsyncClient | None = None,
         event_hooks: dict[str, list[Any]] | None = None,
+        validate_min_order: bool = False,
     ) -> None:
         if (access_key is None) != (secret_key is None):
             raise ValueError(
@@ -193,6 +206,7 @@ class AsyncUpbeat:
         self._max_retries = max_retries
         self._auto_throttle = auto_throttle
         self._logger = logger
+        self._validate_min_order = validate_min_order
         self._owns_http_client = http_client is None
         self._closed = False
 
@@ -218,7 +232,11 @@ class AsyncUpbeat:
 
     @cached_property
     def orders(self) -> AsyncOrdersAPI:
-        return AsyncOrdersAPI(self._transport, self._credentials)
+        return AsyncOrdersAPI(
+            self._transport,
+            self._credentials,
+            validate_min_order=self._validate_min_order,
+        )
 
     @cached_property
     def deposits(self) -> AsyncDepositsAPI:
@@ -269,6 +287,7 @@ class AsyncUpbeat:
         max_retries: int | None = None,
         auto_throttle: bool | None = None,
         logger: Logger | None = None,
+        validate_min_order: bool | None = None,
     ) -> AsyncUpbeat:
         new = AsyncUpbeat.__new__(AsyncUpbeat)
         new._credentials = self._credentials
@@ -279,6 +298,11 @@ class AsyncUpbeat:
             auto_throttle if auto_throttle is not None else self._auto_throttle
         )
         new._logger = logger if logger is not None else self._logger
+        new._validate_min_order = (
+            validate_min_order
+            if validate_min_order is not None
+            else self._validate_min_order
+        )
         new._owns_http_client = False
         new._closed = False
 
